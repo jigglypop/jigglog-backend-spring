@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    username: root
+    password: 1127star@
+    jwt-secret: C877E4A955FBDB2257CCB64154D1D59F1546ED967473C128E477DC9467
+    salt: B5F1FB489F6C6CC5A4391B3D186738E8FE23E1F6982D7DFDA77E91337DA61C99CFC64581B84552B74FDECD2
+  r2dbc:
+    url: moija.c6amzvi2eocz.ap-northeast-2.rds.amazonaws.com
+    username: root
+    password: 1127star
+    database: jigglognext
+    port: 3306
