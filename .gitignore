@@ -1,6 +1,5 @@
 ### 제외
 !**/src/main/resources/config/*
-
 HELP.md
 .gradle
 build/
