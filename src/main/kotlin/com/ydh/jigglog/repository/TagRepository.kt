@@ -1,22 +1,18 @@
 package com.ydh.jigglog.repository
 
-import com.ydh.jigglog.domain.Post
-import com.ydh.jigglog.domain.Tag
+import com.ydh.jigglog.domain.entity.Tag
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @Repository
 interface TagRepository: ReactiveCrudRepository<Tag, Int> {
 
-    @Query(
-        "SELECT * " +
-        "FROM post " +
-        "JOIN (SELECT * FROM post_to_tag WHERE :tagId = post_to_tag.tagId) as PostToTag " +
-        "WHERE post.id = PostToTag.postId"
-    )
-    fun findPostsByTagId(tagId: Int): Flux<Post>
+    fun existsByTitle(title: String): Mono<Boolean>
+    fun findByTitle(title: String): Mono<Tag>
+    fun findAllByTitleIn(title: List<String>): Flux<Tag>
 
     @Query(
         "SELECT distinct(post.tagId) as id, post.title " +

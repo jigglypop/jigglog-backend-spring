@@ -1,7 +1,7 @@
 package com.ydh.jigglog.handler
 
-import com.ydh.jigglog.domain.User
-import com.ydh.jigglog.domain.UserForm
+import com.ydh.jigglog.domain.entity.User
+import com.ydh.jigglog.domain.entity.UserForm
 import com.ydh.jigglog.service.AuthService
 import com.ydh.jigglog.service.PasswordService
 import com.ydh.jigglog.service.SecurityService
@@ -43,7 +43,7 @@ class AuthHandler(
     fun register(req: ServerRequest) = req.bodyToMono(UserForm::class.java)
         // 병렬 실행 : 폼 체크, 유저 중복 체크
         .flatMap {
-            validationService.checkValidForm(it, mapOf("유저 이름" to it.username, "비밀번호" to it.password ))
+            validationService.checkValidForm<UserForm>(it, mapOf("유저 이름" to it.username, "비밀번호" to it.password ))
         // 유저 이름 있는지 확인
         }.flatMap {
             validationService.checkValidUsername(it)
@@ -72,9 +72,8 @@ class AuthHandler(
         .bodyToMono(UserForm::class.java)
         // 병렬 실행 : 폼 체크, 패스워드 체크
         .flatMap {
-            validationService.checkValidForm(it, mapOf("유저 이름" to it.username, "비밀번호" to it.password ))
-        }
-        .flatMap { userForm ->
+            validationService.checkValidForm<UserForm>(it, mapOf("유저 이름" to it.username, "비밀번호" to it.password ))
+        }.flatMap { userForm ->
             Mono.just(userForm)
                 .flatMap { userForm ->
                     authService.getUserByUsername(userForm.username!!)
@@ -106,6 +105,8 @@ class AuthHandler(
                 )
             }.flatMap {
                 securityService.parseJwtToken(it.t1).toMono()
+            }.flatMap {
+                authService.getUserByUsername(it.subject).toMono()
             }.flatMap {
                 ok().body(it.toMono())
             }.onErrorResume(Exception::class.java) {

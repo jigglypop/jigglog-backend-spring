@@ -1,6 +1,6 @@
 package com.ydh.jigglog.service
 
-import com.ydh.jigglog.domain.UserForm
+import com.ydh.jigglog.domain.dto.UserFormDTO
 import com.ydh.jigglog.repository.UserRepository
 
 import org.slf4j.LoggerFactory
@@ -18,7 +18,7 @@ class ValidationService (
         private val logger = LoggerFactory.getLogger(ValidationService::class.java)
     }
 
-    fun checkValidForm(mono: UserForm, form: Map<String?, String?>): Mono<UserForm> {
+    fun <T>checkValidForm(mono: T, form: Map<String?, String?>): Mono<T> {
         val valid = form.filter { it.value == null || it.value == "" }
         // 밸리데이션을 만족할 경우
         return if (valid.keys.isEmpty()) {
@@ -30,7 +30,7 @@ class ValidationService (
 
     }
 
-    fun checkValidUsername(userForm: UserForm): Mono<UserForm> {
+    fun checkValidUsername(userForm: UserFormDTO): Mono<UserFormDTO> {
         return userRepository.existsByUsername(userForm.username!!).flatMap {
             if (it) {
                 throw error("이미 같은 이름의 유저가 있습니다")

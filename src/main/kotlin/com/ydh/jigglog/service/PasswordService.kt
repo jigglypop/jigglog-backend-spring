@@ -1,8 +1,7 @@
 package com.ydh.jigglog.service
 
-import com.ydh.jigglog.domain.User
-import com.ydh.jigglog.domain.UserForm
-import com.ydh.jigglog.handler.AuthHandler
+import com.ydh.jigglog.domain.dto.UserFormDTO
+import com.ydh.jigglog.domain.entity.User
 import com.ydh.jigglog.repository.UserRepository
 
 import org.slf4j.LoggerFactory
@@ -18,7 +17,7 @@ class PasswordService (
     @Autowired private val userRepository: UserRepository
 ) {
     companion object {
-        private val logger = LoggerFactory.getLogger(AuthHandler::class.java)
+        private val logger = LoggerFactory.getLogger(PasswordService::class.java)
     }
     // 패스워드 encode
     fun encode(hashedPassword: String): String {
@@ -29,7 +28,7 @@ class PasswordService (
         return BCryptPasswordEncoder().matches(rawPassword, encodedPassword)
     }
     // 패스워드 해싱
-    fun changeHashedPassword(userForm: UserForm): Mono<UserForm> {
+    fun changeHashedPassword(userForm: UserFormDTO): Mono<UserFormDTO> {
         logger.info("패스워드 해싱")
         return Mono.just(userForm).flatMap {
                 Mono.just(it.apply {

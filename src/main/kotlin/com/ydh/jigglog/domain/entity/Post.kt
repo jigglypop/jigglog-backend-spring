@@ -1,6 +1,5 @@
-package com.ydh.jigglog.domain
+package com.ydh.jigglog.domain.entity
 
-import org.springframework.core.metrics.StartupStep
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
@@ -29,10 +28,7 @@ class Post(
     // 유저
     @Column("userId")
     var userId: Int? = 0,
-    @Column("user")
-    var user: User? = null,
-    // 태그
-    @Column("tags")
-    var tags: List<Tag>? = null,
+    // 카테고리
+    @Column("categoryId")
+    var categoryId: Int? = 0,
 )
-

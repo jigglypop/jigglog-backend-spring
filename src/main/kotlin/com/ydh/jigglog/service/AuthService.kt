@@ -1,8 +1,7 @@
 package com.ydh.jigglog.service
 
-import com.ydh.jigglog.domain.User
-import com.ydh.jigglog.domain.UserForm
-import com.ydh.jigglog.handler.AuthHandler
+import com.ydh.jigglog.domain.dto.UserFormDTO
+import com.ydh.jigglog.domain.entity.User
 import com.ydh.jigglog.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
@@ -13,11 +12,10 @@ class AuthService (
    private val userRepository: UserRepository
 ) {
     companion object {
-        private val logger = LoggerFactory.getLogger(AuthHandler::class.java)
+        private val logger = LoggerFactory.getLogger(AuthService::class.java)
     }
     // 유저 생성
-    fun createUser(userForm: UserForm): Mono<User> {
-        logger.info("유저생성로직")
+    fun createUser(userForm: UserFormDTO): Mono<User> {
         val user = User(
             username = userForm.username,
             hashedPassword = userForm.password

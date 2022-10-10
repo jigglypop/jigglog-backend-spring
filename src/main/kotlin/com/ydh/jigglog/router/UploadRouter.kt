@@ -1,19 +1,18 @@
 package com.ydh.jigglog.router
 
-import com.ydh.jigglog.handler.TagHandler
+import com.ydh.jigglog.handler.UploadHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.router
 
 @Component
-class TagRouter(private val handler: TagHandler) {
+class UploadRouter(private val handler: UploadHandler) {
 
     @Bean
-    fun tagRouterFunction() = router {
+    fun uploadRouterFunction() = router {
         "/api".nest {
-            "/tag".nest {
-                GET("", handler::getAll)
-                POST("", handler::create)
+            "/upload".nest {
+                POST("", handler::upload)
             }
         }
     }

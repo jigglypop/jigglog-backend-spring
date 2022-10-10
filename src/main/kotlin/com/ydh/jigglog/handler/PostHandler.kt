@@ -1,8 +1,7 @@
 package com.ydh.jigglog.handler
 
-import com.ydh.jigglog.service.PostService
-import com.ydh.jigglog.service.SecurityService
-import com.ydh.jigglog.service.ValidationService
+import com.ydh.jigglog.domain.entity.PostForm
+import com.ydh.jigglog.service.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.reactive.function.server.ServerResponse.ok
@@ -17,36 +16,64 @@ import reactor.kotlin.core.publisher.toMono
 class PostHandler(
     @Autowired val postService: PostService,
     @Autowired val securityService: SecurityService,
-    @Autowired val validationService: ValidationService
+    @Autowired val validationService: ValidationService,
+    @Autowired val categoryService: CategoryService,
+    @Autowired val tagService: TagService,
+    @Autowired val postToTagService: PostToTagService
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(PostHandler::class.java)
     }
     // 포스트 만들기
-//    fun save(req: ServerRequest) = Mono.just(req)
-//        // 병렬 실행 : 유저 로그인 확인, 폼 체크
-//        .flatMap {
-//            Mono.zip(
-//                securityService.getLoggedInUser(it),
-//                it.bodyToMono(Post::class.java).flatMap { post ->
-//                    validationService.checkFormValid(post.toMono(),
-//                            mapOf(
-//                                "제목" to post.title,
-//                                "내용" to post.content
-//                            )) }.toMono()
-//            )
-//        // 포스트 저장
-//        }.flatMap { it ->
-//            val profile = it.t1
-//            val post = it.t2
-//            postService.createPost(profile, post)
-//        }.flatMap {
-//            ok().body(it.toMono())
-//        }.onErrorResume(Exception::class.java) {
-//            badRequest().body(
-//                mapOf("message" to it.message).toMono()
-//            )
-//        }
+    fun save(req: ServerRequest) = req
+        .bodyToMono(PostForm::class.java)
+        // 병렬 실행 : 폼 체크, 관리자 체크
+        .flatMap {
+            Mono.zip(
+                validationService.checkValidForm<PostForm>(
+                    it, mapOf(
+                        "포스트 제목" to it.title,
+                        "포스트 요약" to it.summary,
+                        "포스트 내용" to it.content,
+                        "타이틀 이미지" to it.images,
+                        "카테고리 제목" to it.category_title
+                    )
+                ).toMono(),
+                securityService.getLoggedInUser(req).toMono(),
+            )
+        // 유저 관리자 검사
+        }.flatMap {
+            val postForm = it.t1
+            val user = it.t2
+            Mono.zip(
+                securityService.isOwner(user),
+                postForm.toMono(),
+                user.toMono()
+            )
+        // 태그 생성하기, 카테고리 생성하기
+        }.flatMap {
+            val postForm = it.t2
+            val user = it.t3
+            Mono.zip(
+                tagService.createTagParseAndMakeAll(postForm.tags!!).toMono(),
+                categoryService.createCategoryIfNot(postForm.category_title!!),
+                postForm.toMono(),
+                user.toMono()
+            )
+        // 병렬 실행 : 포스트 생성하기
+        }.flatMap {
+            val tags = it.t1
+            val category = it.t2
+            val postForm = it.t3
+            val user = it.t4
+            postService.createPost(user, postForm, category, tags)
+        }.flatMap {
+            ok().body(it.toMono())
+        }.onErrorResume(Exception::class.java) {
+            badRequest().body(
+                mapOf("message" to it.message).toMono()
+            )
+        }
 
     // 단일 포스트 가져오기
     fun get(req: ServerRequest) = Mono.just(req)
@@ -54,77 +81,10 @@ class PostHandler(
         .flatMap {
             postService.getPost(it.pathVariable("postId").toInt())
         }.flatMap {
-            ok().body(
-                it.toMono()
-            )
+            ok().body(it.toMono())
         }.onErrorResume(Exception::class.java) {
             badRequest().body(
-                Mono.just(it)
+                mapOf("message" to it.message).toMono()
             )
         }
-
-    // 포스트 업데이트
-//    fun update(req: ServerRequest) = Mono.just(req)
-//        // 병렬 실행 : 유저 로그인 확인, 폼 체크, 포스트 가져오기
-//        .flatMap {
-//            Mono.zip(
-//                securityService.getLoggedInUser(it),
-//                it.bodyToMono(Post::class.java).flatMap { post ->
-//                    validationService.checkFormValid(post.toMono(),
-//                        mapOf(
-//                            "내용" to post.content,
-//                        )) }.toMono(),
-//                postService.getPost(req.pathVariable("postId").toInt())
-//            )
-//        // 포스트 작성자 체크
-//        }.flatMap { it ->
-//            val profile = it.t1
-//            val postForm = it.t2
-//            val post = it.t3
-//            Mono.zip(
-//                securityService.checkIsOwner<Post>(profile, post.profile!!, post.toMono()),
-//                postForm.toMono()
-//            )
-//        // 업데이트
-//        }.flatMap { it ->
-//            val post = it.t1
-//            val postForm = it.t2
-//            logger.info(it.toString())
-//            postService.updatePost(post, postForm).toMono()
-//        }.flatMap {
-//            ok().body(it.toMono())
-//        }.onErrorResume(Exception::class.java) {
-//            badRequest().body(
-//                mapOf("message" to it.message).toMono()
-//            )
-//        }
-//
-//
-//    // 포스트 삭제
-//    fun delete(req: ServerRequest) = Mono.just(req)
-//        // 병렬 실행 : 유저 로그인 확인, 포스트 가져오기
-//        .flatMap {
-//            Mono.zip(
-//                securityService.getLoggedInUser(it),
-//                postService.getPost(req.pathVariable("postId").toInt())
-//            )
-//            // 포스트 작성자 체크
-//        }.flatMap { it ->
-//            val profile = it.t1
-//            val post = it.t2
-//            Mono.zip(
-//                securityService.checkIsOwner<Post>(profile, post.profile!!, post.toMono()),
-//                req.pathVariable("postId").toInt().toMono()
-//            )
-//            // 삭제
-//        }.flatMap { it ->
-//            val postId = it.t2
-//            postService.deletePost(postId).toMono()
-//        }.flatMap {
-//            ok().body(mapOf("message" to "포스트가 삭제되었습니다").toMono())
-//        }.onErrorResume(Exception::class.java) {
-//            badRequest().body(
-//                mapOf("message" to it.message).toMono()
-//            )
-//        }
 }

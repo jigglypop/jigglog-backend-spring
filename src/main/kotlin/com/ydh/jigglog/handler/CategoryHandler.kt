@@ -1,6 +1,5 @@
 package com.ydh.jigglog.handler
 
-import com.ydh.jigglog.domain.UserForm
 import com.ydh.jigglog.service.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

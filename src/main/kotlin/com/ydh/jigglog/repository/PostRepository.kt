@@ -1,7 +1,7 @@
 package com.ydh.jigglog.repository
 
-import com.ydh.jigglog.domain.Post
-import com.ydh.jigglog.domain.Tag
+import com.ydh.jigglog.domain.entity.Post
+import com.ydh.jigglog.domain.entity.Tag
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import org.springframework.stereotype.Repository

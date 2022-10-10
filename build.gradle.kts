@@ -18,7 +18,7 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	implementation("dev.miku:r2dbc-mysql:0.8.2.RELEASE")
-
+	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
