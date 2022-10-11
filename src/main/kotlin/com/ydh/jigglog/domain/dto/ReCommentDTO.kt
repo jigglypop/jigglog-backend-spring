@@ -1,9 +1,12 @@
 package com.ydh.jigglog.domain.dto
 
-import com.ydh.jigglog.domain.entity.User
+import java.time.LocalDateTime
 
 class ReCommentDTO (
     var id: Int = 0,
     var content: String? = "",
-    var user: User? = null,
+    var user: UserDTO? = null,
+    var createdAt: LocalDateTime? = LocalDateTime.now(),
+    var userId: Int = 0,
+    var commentId: Int = 0,
 )

@@ -1,16 +1,17 @@
 package com.ydh.jigglog.service
 
-import com.ydh.jigglog.domain.dto.CommentDTO
-import com.ydh.jigglog.domain.dto.CommentFormDTO
-import com.ydh.jigglog.domain.dto.ReCommentDTO
+import com.ydh.jigglog.domain.dto.*
 import com.ydh.jigglog.domain.entity.Comment
+import com.ydh.jigglog.domain.entity.ReComment
 import com.ydh.jigglog.repository.CommentRepository
 import com.ydh.jigglog.repository.ReCommentRepository
 import com.ydh.jigglog.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Controller
@@ -49,58 +50,60 @@ class CommentService (
             }
     }
 
-    // 포스트 아이디로 모든 코멘트 가져오기
-    fun getCommentAll(postId: Int): Mono<List<Comment>> {
-        return commentRepository.findAllByPostId(postId).collectList().toMono()
-    }
     // 포스트로 모두 가져오기
-    fun getCommentByPostId(comments: List<Comment>, postId: Int): Mono<List<CommentDTO>> {
-        return Mono.just(comments)
-            .flatMap {
-                val comments = it
-                val user_comment = mutableMapOf<Int, MutableList<List<Int>>>()
-                val user_idx = mutableSetOf<Int>()
-                val comment_id = mutableListOf<Int>()
-                val result = mutableListOf<CommentDTO>()
-                for (i in comments.indices) {
-                    var comment = comments[i]
-                    result.add(CommentDTO(
-                        id = comment.id,
-                        content = comment.content
-                    ))
-                    // comment의 경우 (1)
-                    val temp = mutableListOf<Int>()
-                    temp.add(1)
-                    temp.add(comment.userId!!)
-                    if (comment.userId in user_comment) {
-                        user_comment[i]!!.add(temp)
-                    } else {
-                        user_comment[i] = mutableListOf(temp)
-                    }
-                    user_idx.add(comment.userId!!)
-                    comment_id.add(comment.id!!)
-                }
-                Mono.zip(
-                    comments.toMono(),
-                    user_comment.toMono(),
-                    user_idx.toMono(),
-                    recommentRepository.findAllByCommentIdIn(comment_id).collectList().toMono(),
-                    result.toMono()
+    fun getCommentByPostId(postId: Int): Mono<List<CommentDTO>> {
+        return Mono.just(postId).flatMap { postId ->
+            commentRepository.findAllByPostIdAndUser(postId).collectList().toMono()
+        }.flatMap {
+            val comment_idx = mutableMapOf<Int, CommentDTO>()
+            for (everyComment in it) {
+                val comment = CommentDTO(
+                    id = everyComment.id,
+                    content = everyComment.content,
+                    createdAt = everyComment.createdat,
+                    recomments = mutableListOf<ReCommentDTO>(),
+                    user = UserDTO(
+                        id = everyComment.userid,
+                        username = everyComment.username,
+                        hashedPassword = "",
+                        email = everyComment.email,
+                        imageUrl = everyComment.imageurl,
+                        githubUrl = everyComment.githuburl,
+                        summary = everyComment.summary,
+                    )
                 )
-            }.flatMap {
-                val comments = it.t1
-                val user_comment = it.t2
-                val user_idx = it.t3
-                val recomments = it.t4
-                val result = it.t5
-                val comment_recomment = mutableMapOf<Int, MutableList<Int>>()
-                for (i in recomments.indices) {
-                    var recomment = recomments[i]
-                    result.add(
-                        ReCommentDTO(
-                        id = recomment.id,
-                        content = recomment.content))
-                }
+                comment_idx[everyComment.id] = comment
             }
+            Mono.zip(
+                comment_idx.toMono(),
+                recommentRepository.findEveryRecomments(postId).collectList().toMono()
+            )
+        }.flatMap {
+            val comment_idx = it.t1
+            val recommentDTOs = it.t2
+            for (everyReComment in recommentDTOs) {
+                val recomment = ReCommentDTO(
+                    id = everyReComment.id,
+                    content = everyReComment.content,
+                    createdAt = everyReComment.createdat,
+                    user = UserDTO(
+                        id = everyReComment.userid,
+                        username = everyReComment.username,
+                        hashedPassword = "",
+                        email = everyReComment.email,
+                        imageUrl = everyReComment.imageurl,
+                        githubUrl = everyReComment.githuburl,
+                        summary = everyReComment.summary,
+                    )
+                )
+                comment_idx[everyReComment.commentid]!!.recomments!!.add(recomment)
+            }
+            val results = mutableListOf<CommentDTO>()
+            for (i in comment_idx.keys) {
+                results.add(comment_idx[i]!!)
+            }
+            results.toMono()
+        }
     }
+
 }

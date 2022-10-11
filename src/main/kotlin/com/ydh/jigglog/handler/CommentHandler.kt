@@ -30,7 +30,7 @@ class CommentHandler(
     fun getByPostId(req: ServerRequest) = Mono.just(req)
         // 포스트의 모든 댓글 가져오기
         .flatMap {
-            commentService.getCommentAll(req.pathVariable("postId").toInt()).toMono()
+            commentService.getCommentByPostId(req.pathVariable("postId").toInt()).toMono()
         }.flatMap {
             ok().body(it.toMono())
         }.onErrorResume(Exception::class.java) {
