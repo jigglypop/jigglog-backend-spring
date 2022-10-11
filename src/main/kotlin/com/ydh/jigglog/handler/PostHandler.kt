@@ -1,6 +1,6 @@
 package com.ydh.jigglog.handler
 
-import com.ydh.jigglog.domain.entity.PostForm
+import com.ydh.jigglog.domain.dto.PostFormDTO
 import com.ydh.jigglog.service.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,11 +26,11 @@ class PostHandler(
     }
     // 포스트 만들기
     fun save(req: ServerRequest) = req
-        .bodyToMono(PostForm::class.java)
+        .bodyToMono(PostFormDTO::class.java)
         // 병렬 실행 : 폼 체크, 관리자 체크
         .flatMap {
             Mono.zip(
-                validationService.checkValidForm<PostForm>(
+                validationService.checkValidForm<PostFormDTO>(
                     it, mapOf(
                         "포스트 제목" to it.title,
                         "포스트 요약" to it.summary,

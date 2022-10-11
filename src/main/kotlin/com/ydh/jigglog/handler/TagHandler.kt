@@ -1,5 +1,7 @@
 package com.ydh.jigglog.handler
 
+import com.ydh.jigglog.domain.entity.Tag
+import com.ydh.jigglog.repository.PostToTagRepository
 import com.ydh.jigglog.service.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,8 +16,8 @@ import reactor.kotlin.core.publisher.toMono
 
 @Component
 class TagHandler(
-    @Autowired val tagService: TagService,
-) {
+    @Autowired private val tagService: TagService,
+    ) {
     companion object {
         private val logger = LoggerFactory.getLogger(TagHandler::class.java)
     }
@@ -36,6 +38,32 @@ class TagHandler(
             tagService.createTagParseAndMakeAll(it.title!!).toMono()
         }.flatMap {
             ok().body(it.toMono())
+        }.onErrorResume(Exception::class.java) {
+            badRequest().body(
+                mapOf("message" to it.message).toMono()
+            )
+        }
+
+    // 포스트 아이디로 조인 삭제하기
+    fun deleteJoinByPostId(req: ServerRequest) = Mono
+        .just(req.pathVariable("postId"))
+        .flatMap {
+            tagService.deleteTagsByPostID(it.toInt()).toMono()
+        }.flatMap {
+            ok().body(mapOf("message" to "포스트: $it 삭제가 완료되었습니다").toMono())
+        }.onErrorResume(Exception::class.java) {
+            badRequest().body(
+                mapOf("message" to it.message).toMono()
+            )
+        }
+
+    // 태그 아이디로 조인 삭제하기
+    fun deleteJoinByTagID(req: ServerRequest) = Mono
+        .just(req.pathVariable("postId"))
+        .flatMap {
+            tagService.deleteTagsByTagID(it.toInt()).toMono()
+        }.flatMap {
+            ok().body(mapOf("message" to "포스트: $it 삭제가 완료되었습니다").toMono())
         }.onErrorResume(Exception::class.java) {
             badRequest().body(
                 mapOf("message" to it.message).toMono()

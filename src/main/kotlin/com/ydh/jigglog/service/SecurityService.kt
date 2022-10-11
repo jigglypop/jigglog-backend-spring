@@ -88,15 +88,14 @@ class SecurityService(
             }
         }
     }
-//
-//    // 객체 유저 체크
-//    fun <T>checkIsOwner(profile: Profile, owner: Profile,  mono: Mono<T>): Mono<T> {
-//        return owner.toMono().flatMap {
-//            if (it.username == profile.username) {
-//                mono.toMono()
-//            } else {
-//                Mono.error(Exception("같은 이름의 유저가 아닙니다"))
-//            }
-//        }
-//    }
+    // 객체 유저 체크
+    fun checkIsOwner(userId: Int, writer: Int): Mono<Boolean> {
+        return writer.toMono().flatMap {
+            if (it == userId) {
+                true.toMono()
+            } else {
+                throw error("작성자가 아닙니다")
+            }
+        }
+    }
 }

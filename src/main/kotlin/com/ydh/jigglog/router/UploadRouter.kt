@@ -7,13 +7,10 @@ import org.springframework.web.reactive.function.server.router
 
 @Component
 class UploadRouter(private val handler: UploadHandler) {
-
     @Bean
     fun uploadRouterFunction() = router {
-        "/api".nest {
-            "/upload".nest {
-                POST("", handler::upload)
-            }
+        "/api/upload".nest {
+            POST("", handler::upload)
         }
     }
 

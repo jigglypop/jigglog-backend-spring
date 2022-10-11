@@ -1,6 +1,5 @@
 package com.ydh.jigglog.service
 
-import com.ydh.jigglog.domain.entity.PostToTag
 import com.ydh.jigglog.domain.entity.Tag
 import com.ydh.jigglog.repository.PostToTagRepository
 import com.ydh.jigglog.repository.TagRepository
@@ -19,15 +18,6 @@ class TagService (
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(TagService::class.java)
-    }
-    fun createTag(title: String): Mono<Tag> {
-        return tagRepository.existsByTitle(title).flatMap {
-            if (it) {
-                tagRepository.findByTitle(title)
-            } else {
-                tagRepository.save(Tag(title = title))
-            }
-        }
     }
     // 태그 만들기
     fun createTagAll(titles: List<String>): Mono<List<Tag>> {
@@ -91,16 +81,18 @@ class TagService (
                 getTagAllByTitle(parsedTags).collectList().toMono()
             }
     }
-
-    // 태그 연결
-    fun bindTagAndPost(postId: Int, tags: List<Tag>): Mono<MutableList<PostToTag>> {
-        val postToTags = mutableListOf<PostToTag>()
-        for (tag in tags) {
-            postToTags.add(PostToTag(postId, tag.id))
-        }
-        return Mono.just(postToTags)
+    // 태그 아이디로 조인 삭제
+    fun deleteTagsByTagID(tagId: Int): Mono<Void> {
+        return Mono.just(tagId)
             .flatMap {
-                postToTagRepository.saveAll(it).collectList().toMono()
+                postToTagRepository.deleteByTagId(it).toMono()
+            }
+    }
+    // 포스트 아이디로 조인 삭제
+    fun deleteTagsByPostID(postId: Int): Mono<Void> {
+        return Mono.just(postId)
+            .flatMap {
+                postToTagRepository.deleteByPostId(it).toMono()
             }
     }
 }
