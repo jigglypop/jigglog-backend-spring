@@ -2,16 +2,13 @@ package com.ydh.jigglog.service
 
 import com.ydh.jigglog.domain.dto.*
 import com.ydh.jigglog.domain.entity.Comment
-import com.ydh.jigglog.domain.entity.ReComment
 import com.ydh.jigglog.repository.CommentRepository
 import com.ydh.jigglog.repository.ReCommentRepository
 import com.ydh.jigglog.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Controller
@@ -56,47 +53,41 @@ class CommentService (
             commentRepository.findAllByPostIdAndUser(postId).collectList().toMono()
         }.flatMap {
             val comment_idx = mutableMapOf<Int, CommentDTO>()
-            for (everyComment in it) {
-                val comment = CommentDTO(
-                    id = everyComment.id,
-                    content = everyComment.content,
-                    createdAt = everyComment.createdat,
-                    recomments = mutableListOf<ReCommentDTO>(),
-                    user = UserDTO(
-                        id = everyComment.userid,
-                        username = everyComment.username,
-                        hashedPassword = "",
-                        email = everyComment.email,
-                        imageUrl = everyComment.imageurl,
-                        githubUrl = everyComment.githuburl,
-                        summary = everyComment.summary,
-                    )
-                )
-                comment_idx[everyComment.id] = comment
-            }
-            Mono.zip(
-                comment_idx.toMono(),
-                recommentRepository.findEveryRecomments(postId).collectList().toMono()
-            )
-        }.flatMap {
-            val comment_idx = it.t1
-            val recommentDTOs = it.t2
-            for (everyReComment in recommentDTOs) {
+            for (commentsAll in it) {
                 val recomment = ReCommentDTO(
-                    id = everyReComment.id,
-                    content = everyReComment.content,
-                    createdAt = everyReComment.createdat,
+                    id = commentsAll.recomment_id,
+                    content = commentsAll.recomment_content,
+                    createdAt = commentsAll.recomment_createdat,
                     user = UserDTO(
-                        id = everyReComment.userid,
-                        username = everyReComment.username,
-                        hashedPassword = "",
-                        email = everyReComment.email,
-                        imageUrl = everyReComment.imageurl,
-                        githubUrl = everyReComment.githuburl,
-                        summary = everyReComment.summary,
+                        id = commentsAll.recomment_userid,
+                        username = commentsAll.recomment_username,
+                        email = commentsAll.recomment_email,
+                        imageUrl = commentsAll.recomment_imageurl,
+                        githubUrl = commentsAll.recomment_githuburl,
+                        summary = commentsAll.recomment_summary,
                     )
                 )
-                comment_idx[everyReComment.commentid]!!.recomments!!.add(recomment)
+                if (commentsAll.comment_id in comment_idx) {
+                    comment_idx[commentsAll.comment_id]?.recomments?.add(recomment)
+                } else {
+                    val comment = CommentDTO(
+                        id = commentsAll.comment_id,
+                        content = commentsAll.comment_content,
+                        createdAt = commentsAll.comment_createdat,
+                        recomments = mutableListOf<ReCommentDTO>(),
+                        user = UserDTO(
+                            id = commentsAll.comment_userid,
+                            username = commentsAll.comment_username,
+                            hashedPassword = "",
+                            email = commentsAll.comment_email,
+                            imageUrl = commentsAll.comment_imageurl,
+                            githubUrl = commentsAll.comment_githuburl,
+                            summary = commentsAll.comment_summary,
+                        )
+                    )
+                    comment.recomments.add(recomment)
+                    comment_idx[commentsAll.comment_id] = comment
+                }
             }
             val results = mutableListOf<CommentDTO>()
             for (i in comment_idx.keys) {
