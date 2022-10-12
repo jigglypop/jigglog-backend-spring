@@ -5,13 +5,9 @@ import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 @Repository
 interface TagRepository: ReactiveCrudRepository<Tag, Int> {
-
-    fun existsByTitle(title: String): Mono<Boolean>
-    fun findByTitle(title: String): Mono<Tag>
     fun findAllByTitleIn(title: List<String>): Flux<Tag>
 
     @Query(
