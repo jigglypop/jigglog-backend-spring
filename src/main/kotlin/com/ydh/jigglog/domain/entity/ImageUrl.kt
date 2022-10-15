@@ -4,8 +4,8 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
-@Table(name = "icon_set")
-class IconSet(
+@Table(name = "image_url")
+class ImageUrl(
     @Id
     var id: Int = 0,
     @Column("title")

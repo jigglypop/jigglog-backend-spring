@@ -1,9 +1,6 @@
 package com.ydh.jigglog.service
 
-import com.ydh.jigglog.domain.dto.PostDTO
-import com.ydh.jigglog.domain.dto.PostFormDTO
-import com.ydh.jigglog.domain.dto.UpdateFormDTO
-import com.ydh.jigglog.domain.entity.*
+import com.ydh.jigglog.domain.dto.*
 import com.ydh.jigglog.repository.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,106 +10,99 @@ import reactor.kotlin.core.publisher.toMono
 
 @Controller
 class PortfolioService (
-    @Autowired private val postRepository: PostRepository,
-    @Autowired private val userRepository: UserRepository,
-    @Autowired private val categoryRepository: CategoryRepository,
-    @Autowired private val postToTagRepository: PostToTagRepository
+    @Autowired private val portfolioRepository: PortfolioRepository,
+    @Autowired private val iconSetRepository: IconSetRepository,
+    @Autowired private val imageUrlRepository: ImageUrlRepository
+
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(PortfolioService::class.java)
     }
-    // 포스트 생성
-    fun createPost(user: User, postForm: PostFormDTO, category: Category, tags: List<Tag>): Mono<PostDTO> {
-        return postRepository.save(
-            Post(
-                title = postForm.title,
-                summary = postForm.summary,
-                content = postForm.content,
-                images = postForm.images,
-                userId = user.id,
-                categoryId = category.id,
-            )
-        // 태그 조인
-        ).flatMap { post ->
-            var postToTags = mutableListOf<PostToTag>()
-            for (tag in tags) {
-                postToTags.add(
-                    PostToTag(
-                        postId = post.id,
-                        tagId = tag.id
+    // 포트폴리오 모두 가져오기
+    fun getPortfolioAll(): Mono<List<PortfolioDTO>> {
+        return Mono.just("portfolio")
+            .flatMap {
+                portfolioRepository.findAllByCategoryId(11).collectList().toMono()
+            }.flatMap {
+                val portfolio_idx = mutableListOf<Int>()
+                val portfolio_map = mutableMapOf<Int, PortfolioDTO>()
+                for (portfolio in it) {
+                    portfolio_idx.add(portfolio.id!!)
+                    portfolio_map[portfolio.id!!] = PortfolioDTO(
+                        id = portfolio.id,
+                        title = portfolio.title,
+                        summary = portfolio.summary,
+                        content = portfolio.content,
+                        images = portfolio.images,
+                        viewcount = portfolio.viewcount,
+                        site = portfolio.site,
+                        createdAt = portfolio.createdAt,
+                        updatedAt = portfolio.updatedAt,
+                        iconsets = mutableListOf(),
+                        imageurls = mutableListOf(),
                     )
+                }
+                Mono.zip(
+                    iconSetRepository.findAllByPostIdIn(portfolio_idx).collectList().toMono(),
+                    imageUrlRepository.findAllByPostIdIn(portfolio_idx).collectList().toMono(),
+                    portfolio_map.toMono()
                 )
+            }.flatMap {
+                val iconSets = it.t1
+                val imageUrls = it.t2
+                val portfolio_map = it.t3
+                for (iconSet in iconSets) {
+                    portfolio_map[iconSet.postId]?.iconsets?.add(iconSet)
+                }
+                for (imageUrl in imageUrls) {
+                    portfolio_map[imageUrl.postId]?.imageurls?.add(imageUrl)
+                }
+                val results = mutableListOf<PortfolioDTO>()
+                for (i in portfolio_map.keys) {
+                    results.add(portfolio_map[i]!!)
+                }
+                results.toMono()
             }
-            Mono.zip(
-                postToTagRepository.saveAll(postToTags).collectList().toMono(),
-                post.toMono()
-            )
-        // 결과
-        }.flatMap {
-            val post = it.t2
-            getPost(post.id).toMono()
-        }
     }
-
-    // 포스트 (유저, 태그) 가져오기
-    fun getPost(postId: Int): Mono<PostDTO?> {
-        return Mono.just(postId)
+    // 포트폴리오 (유저, 아이콘셋) 가져오기
+    fun getPortfolio(portfolioId: Int): Mono<PortfolioDTO?> {
+        return Mono.just(portfolioId)
         .flatMap {
-            postRepository.existsById(it)
+            portfolioRepository.existsById(it)
         }.flatMap { isExist ->
             if (!isExist) {
-                throw error("포스트가 없습니다")
+                throw error("포트폴리오가 없습니다")
             } else {
-                postRepository.findById(postId)
-                    .flatMap { post ->
-                        logger.info(post.title)
+                portfolioRepository.findById(portfolioId)
+                    .flatMap { portfolio ->
                         Mono.zip(
-                            post.toMono(),
+                            portfolio.toMono(),
                             // tag
-                            postRepository.findTagsByPostId(postId).collectList().toMono(),
-                            // user
-                            userRepository.findById(post.userId!!)
-                                .flatMap {
-                                        user ->
-                                        user.apply {
-                                            hashedPassword = ""
-                                }.toMono()
-                            }.toMono(),
+                            iconSetRepository.findByPostId(portfolioId).collectList().toMono(),
                             // category
-                            categoryRepository.findById(post.categoryId!!).toMono(),
+                            imageUrlRepository.findByPostId(portfolioId).collectList().toMono(),
                         )
                     }.flatMap {
-                        val post = it.t1
-                        val tags = it.t2
-                        val user = it.t3
-                        val category = it.t4
-                        PostDTO(
-                            id = post.id,
-                            title = post.title,
-                            summary = post.summary,
-                            content = post.content,
-                            images = post.images,
-                            viewcount = post.viewcount,
-                            site = post.site,
-                            createdAt = post.createdAt,
-                            updatedAt = post.updatedAt,
-                            user = user,
-                            category = category,
-                            tags = tags
+                        val portfolio = it.t1
+                        val iconSets = it.t2
+                        val imageUrls = it.t3
+                        PortfolioDTO(
+                            id = portfolio.id,
+                            title = portfolio.title,
+                            summary = portfolio.summary,
+                            content = portfolio.content,
+                            images = portfolio.images,
+                            viewcount = portfolio.viewcount,
+                            site = portfolio.site,
+                            createdAt = portfolio.createdAt,
+                            updatedAt = portfolio.updatedAt,
+                            imageurls = imageUrls,
+                            iconsets = iconSets
                         ).toMono()
                     }
             }
         }
     }
 
-    // 포스트 업데이트
-    fun updatePost(post: Post, updateForm: UpdateFormDTO): Mono<Post> {
-        return Mono.just(updateForm
-        ).flatMap { updateForm ->
-            updateForm.toMono()
-        }.flatMap { updateForm ->
-            post.toMono()
-        }
-    }
 }
 
