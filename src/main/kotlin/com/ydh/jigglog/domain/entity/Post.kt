@@ -10,13 +10,13 @@ class Post(
     @Id
     var id: Int = 0,
     @Column("title")
-    val title: String? = "",
+    var title: String? = "",
     @Column("summary")
-    val summary: String? = "",
+    var summary: String? = "",
     @Column("content")
-    val content: String? = "",
+    var content: String? = "",
     @Column("images")
-    val images: String? = "",
+    var images: String? = "",
     @Column("viewcount")
     var viewcount: Int = 0,
     @Column("site")

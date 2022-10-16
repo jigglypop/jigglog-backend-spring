@@ -13,8 +13,8 @@ class PostRouter(private val handler: PostHandler) {
         "/api/post".nest {
             POST("", handler::save)
             GET("/{postId}", handler::get)
-//                PATCH("/{postId}", handler::update)
-//                DELETE("/{postId}", handler::delete)
+            PATCH("/{postId}", handler::update)
+            DELETE("/{postId}", handler::delete)
         }
     }
 

@@ -54,6 +54,14 @@ class PostService (
         }
     }
 
+    // 포스트만 가져오기
+    fun getOnlyPost(postId: Int): Mono<Post> {
+        return Mono.just(postId)
+            .flatMap {
+                postRepository.findById(postId).toMono()
+            }
+    }
+
     // 포스트 (유저, 태그) 가져오기
     fun getPost(postId: Int): Mono<PostDTO?> {
         return Mono.just(postId)
@@ -65,7 +73,10 @@ class PostService (
             } else {
                 postRepository.findById(postId)
                     .flatMap { post ->
-                        logger.info(post.title)
+                        postRepository.save(post.apply {
+                            viewcount++
+                        }).toMono()
+                    }.flatMap { post ->
                         Mono.zip(
                             post.toMono(),
                             // tag
@@ -106,13 +117,23 @@ class PostService (
     }
 
     // 포스트 업데이트
-    fun updatePost(post: Post, updateForm: UpdateFormDTO): Mono<Post> {
+    fun updatePost(post: Post, updateForm: UpdateFormDTO): Mono<PostDTO> {
         return Mono.just(updateForm
-        ).flatMap { updateForm ->
-            updateForm.toMono()
-        }.flatMap { updateForm ->
-            post.toMono()
+        ).flatMap { form ->
+            postRepository.save(post.apply {
+                if (form.title != "" && form.title != null) title = form.title
+                if (form.summary != "" && form.summary != null) summary = form.summary
+                if (form.content != "" && form.content != null) content = form.content
+                if (form.images != "" && form.images != null) images = form.images
+            })
+        }.flatMap { post ->
+            getPost(post.id).toMono()
         }
+    }
+
+    // 포스트 삭제
+    fun deltePost(postId: Int): Mono<Boolean> {
+        return postRepository.deleteById(postId).thenReturn(true)
     }
 }
 

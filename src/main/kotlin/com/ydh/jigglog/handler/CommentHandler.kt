@@ -83,7 +83,6 @@ class CommentHandler(
         }.flatMap {
             val comment = it.t2
             commentService.deleteComment(comment.id).toMono()
-        // 생성
         }.flatMap {
             ok().body(mapOf("message" to "댓글 삭제가 완료되었습니다.").toMono()).toMono()
         }.onErrorResume(Exception::class.java) {

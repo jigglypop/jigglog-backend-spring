@@ -1,6 +1,7 @@
 package com.ydh.jigglog.handler
 
 import com.ydh.jigglog.domain.dto.PostFormDTO
+import com.ydh.jigglog.domain.dto.UpdateFormDTO
 import com.ydh.jigglog.service.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -82,6 +83,56 @@ class PostHandler(
             postService.getPost(it.pathVariable("postId").toInt())
         }.flatMap {
             ok().body(it.toMono())
+        }.onErrorResume(Exception::class.java) {
+            badRequest().body(
+                mapOf("message" to it.message).toMono()
+            )
+        }
+
+    // 포스트 업데이트
+    fun update(req: ServerRequest) = req
+        .bodyToMono(UpdateFormDTO::class.java)
+        // 병렬 실행 : 폼 체크, 관리자 체크
+        .flatMap { postForm->
+            Mono.zip(
+                postForm.toMono(),
+                securityService.getLoggedInUser(req).toMono(),
+            )
+        // 유저 관리자 검사, 포스트 원본 가져오기
+        }.flatMap {
+            val postForm = it.t1
+            val user = it.t2
+            Mono.zip(
+                postForm.toMono(),
+                postService.getOnlyPost(req.pathVariable("postId").toInt()).toMono(),
+                securityService.isOwner(user),
+            )
+        // 포스트 업데이트하기
+        }.flatMap {
+            val postForm = it.t1
+            val post = it.t2
+            postService.updatePost(post, postForm).toMono()
+        }.flatMap {
+            ok().body(it.toMono())
+        }.onErrorResume(Exception::class.java) {
+            badRequest().body(
+                mapOf("message" to it.message).toMono()
+            )
+        }
+
+    // 포스트 삭제
+    fun delete(req: ServerRequest) = Mono.just(req)
+        // 관리자 체크
+        .flatMap {
+            securityService.getLoggedInUser(req).toMono()
+        // 유저 관리자 검사, 포스트 원본 가져오기
+        }.flatMap { user ->
+            securityService.isOwner(user)
+        // 포스트 삭제하기
+        }.flatMap {
+            postService.deltePost(req.pathVariable("postId").toInt()).toMono()
+        }.flatMap {
+            ok().body(mapOf("message" to "포스트 삭제가 완료되었습니다.").toMono()).toMono()
         }.onErrorResume(Exception::class.java) {
             badRequest().body(
                 mapOf("message" to it.message).toMono()
