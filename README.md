@@ -116,3 +116,8 @@ sudo apt install jenkins
 sudo systemctl status jenkins
 ```
 
+
+### 암호 얻기
+```shell
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
