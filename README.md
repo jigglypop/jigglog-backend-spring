@@ -126,6 +126,4 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```shell
 jenkins service restart 
 service jenkins restart 
-
-
 ```
