@@ -121,3 +121,9 @@ sudo systemctl status jenkins
 ```shell
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
+
+### 재시작
+```shell
+jenkins service restart 
+service jenkins restart 
+```
