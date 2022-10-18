@@ -4,12 +4,12 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/app/deploy
-permissions:
-  - object: /home/ubuntu/
-    patern: "**"
-    owner: ubuntu
-    group: ubuntu
-    mode: 755
+#permissions:
+#  - object: /home/ubuntu/
+#    patern: "**"
+#    owner: ubuntu
+#    group: ubuntu
+#    mode: 755
 hooks:
   BeforeInstall:
     - location: ./scripts/before_deploy.sh
