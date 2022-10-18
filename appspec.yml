@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/jigglognext
+    destination: /home/ubuntu/jigglog
     overwrite: yes
 permissions:
   - object: /home/ubuntu/
