@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /home/ubuntu/jigglognext
+    overwrite: yes
+permissions:
+  - object: /home/ubuntu/
+    patern: "**"
+    owner: ubuntu
+    group: ubuntu
+    mode: 755
+hooks:
+#  BeforeInstall:
+#    - location: ./scripts/before_deploy.sh
+#      timeout: 300
+#      runas: ubuntu
+  AfterInstall:
+    - location: start.sh # 파일을 올린 후 진행해야하는 작업을 적은 deploy.sh 파일 경로
+      timeout: 300
+      runas: ubuntu
