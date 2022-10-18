@@ -128,3 +128,11 @@ jenkins service restart
 service jenkins restart 
 
 ```
+
+### 젠킨스 권한
+
+```shell
+sudo su jenkins
+cd
+ssh-keygen -t rsa
+```
