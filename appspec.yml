@@ -11,10 +11,10 @@ files:
 #    group: ubuntu
 #    mode: 755
 hooks:
-  BeforeInstall:
-    - location: ./scripts/before_deploy.sh
-      timeout: 300
-      runas: ubuntu
+#  BeforeInstall:
+#    - location: ./scripts/before_deploy.sh
+#      timeout: 300
+#      runas: ubuntu
   AfterInstall:
     - location: ./scripts/after_deploy.sh # 파일을 올린 후 진행해야하는 작업을 적은 deploy.sh 파일 경로
       timeout: 300
