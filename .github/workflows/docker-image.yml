@@ -5,6 +5,10 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+env:
+  S3_BUCKET_NAME: jigglog-backend-kotlin
+  APP_NAME: jigglogkotlin
+  GROUP_NAME: jigglogkotlin
 
 jobs:
   build:
@@ -39,17 +43,17 @@ jobs:
 
     # 압축파일 형태로 전달
     - name: Make zip file
-      run: zip -r -qq -j ./springboot-intro-build.zip ./deploy
+      run: zip -r -qq -j ./$GITHUB_SHA.zip ./deploy
     # S3 Bucket으로 copy
     - name: Deliver to AWS S3
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: aws s3 cp --region ap-northeast-2 ./springboot-intro-build.zip s3://jigglog-backend-kotlin/
+      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
 
     # Deploy
     - name: Deploy
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: aws deploy create-deployment --application-name jigglogkotlin --deployment-group-name jigglogkotlin --file-exists-behavior OVERWRITE --s3-location bucket=jigglog-backend-kotlin,bundleType=zip,key=springboot-intro-build.zip --region ap-northeast-2
+      run: aws deploy create-deployment --application-name $APP_NAME --deployment-group-name $GROUP_NAME --file-exists-behavior OVERWRITE --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip --region ap-northeast-2
