@@ -1,6 +1,6 @@
 echo "after deploy 시작" >> /home/ubuntu/log.txt
 
-cd /home/ubuntu/ >> /home/ubuntu/log.txt
+cd /home/ubuntu/jigglogkotlin/ >> /home/ubuntu/log.txt
 
 docker build -t jigglog-backend .
 
