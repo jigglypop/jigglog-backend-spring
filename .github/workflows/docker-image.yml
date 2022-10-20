@@ -9,7 +9,6 @@ env:
   S3_BUCKET_NAME: jigglog-backend-kotlin
   APP_NAME: jigglogkotlin
   GROUP_NAME: jigglogkotlin
-
 jobs:
   build:
     runs-on: ubuntu-latest
