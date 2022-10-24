@@ -152,3 +152,7 @@ sudo service codedeploy-agent status
 
 ###
 
+```shell
+sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
+ssh -i ./jigglog.pem ubuntu@3.34.2.233
+```
