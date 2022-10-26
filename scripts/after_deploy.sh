@@ -25,5 +25,5 @@ JAR_NAME=$(ls -tr $REPOSITORY/ | grep jar | tail -n 1)
 
 echo "> JAR Name: $JAR_NAME" >> /home/ubuntu/log.txt
 
-#java -jar $REPOSITORY/$JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
-nohup java -jar $REPOSITORY/$JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
+java -jar $REPOSITORY/$JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
+#nohup java -jar $REPOSITORY/$JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
