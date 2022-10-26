@@ -19,7 +19,7 @@ else
     sleep 2
 fi
 
-echo "> 새 애플리케이션 배포" >> /home/ubuntu/log.txt
+echo "> 새 애플리케이션 배포 " >> /home/ubuntu/log.txt
 
 JAR_NAME=$(ls -tr $REPOSITORY/ | grep jar | tail -n 1)
 
