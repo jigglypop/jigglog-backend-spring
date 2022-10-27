@@ -10,7 +10,7 @@ class PortfolioRouter(private val handler: PortfolioHandler) {
 
     @Bean
     fun portfolioRouterFunction() = router {
-        "/api/rportfolio".nest {
+        "/api/portfolio".nest {
             GET("", handler::getAll)
             GET("/{portfolioId}", handler::get)
         }

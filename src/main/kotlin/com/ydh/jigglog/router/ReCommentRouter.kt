@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.server.router
 class ReCommentRouter(private val handler: ReCommentHandler) {
     @Bean
     fun recommentRouterFunction() = router {
-        "/api/rrecomment".nest {
+        "/api/recomment".nest {
             POST("/{commentId}", handler::create)
             DELETE("/{recommentId}", handler::delete)
         }

@@ -10,7 +10,7 @@ class PostRouter(private val handler: PostHandler) {
 
     @Bean
     fun postRouterFunction() = router {
-        "/api/rpost".nest {
+        "/api/post".nest {
             POST("", handler::save)
             GET("/{postId}", handler::get)
             PATCH("/{postId}", handler::update)

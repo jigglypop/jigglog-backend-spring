@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.server.router
 class CommentRouter(private val handler: CommentHandler) {
     @Bean
     fun commentRouterFunction() = router {
-        "/api/rcomment".nest {
+        "/api/comment".nest {
             GET("/{postId}", handler::getByPostId)
             POST("/{postId}", handler::create)
             DELETE("/{commentId}", handler::delete)

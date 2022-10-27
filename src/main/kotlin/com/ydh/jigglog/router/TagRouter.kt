@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.server.router
 class TagRouter(private val handler: TagHandler) {
     @Bean
     fun tagRouterFunction() = router {
-        "/api/rtag".nest {
+        "/api/tag".nest {
             GET("", handler::getAll)
             POST("", handler::create)
             DELETE("/post/{postId}", handler::deleteJoinByPostId)
