@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.server.router
 class CategoryRouter(private val handler: CategoryHandler) {
     @Bean
     fun categoryRouterFunction() = router {
-        "/api/category".nest {
+        "/api/rcategory".nest {
             GET("", handler::getAll)
 //                GET("/{categoryId}", handler::check)
         }

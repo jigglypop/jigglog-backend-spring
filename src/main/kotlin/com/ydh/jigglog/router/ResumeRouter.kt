@@ -10,7 +10,7 @@ class ResumeRouter(private val handler: ResumeHandler) {
 
     @Bean
     fun resumeRouterFunction() = router {
-        "/api/resume".nest {
+        "/api/rresume".nest {
             GET("", handler::get)
         }
     }

@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.server.router
 class AuthRouter(private val handler: AuthHandler) {
     @Bean
     fun authRouterFunction() = router {
-        "/api/auth".nest {
+        "/api/rauth".nest {
             GET("/test", handler::test)
             POST("/register", handler::register)
             POST("/login", handler::login)
