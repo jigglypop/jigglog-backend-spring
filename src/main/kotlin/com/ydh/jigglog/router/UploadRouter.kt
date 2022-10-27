@@ -12,5 +12,6 @@ class UploadRouter(private val handler: UploadHandler) {
         "/api/upload".nest {
             POST("", handler::upload)
         }
+
     }
 }
