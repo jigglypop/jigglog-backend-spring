@@ -13,5 +13,4 @@ class UploadRouter(private val handler: UploadHandler) {
             POST("", handler::upload)
         }
     }
-
 }
