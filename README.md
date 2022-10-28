@@ -168,5 +168,4 @@ rm /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled
 sudo vim /etc/nginx/sites-enabled/default
 
-
 ```
