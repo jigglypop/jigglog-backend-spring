@@ -10,7 +10,10 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache
+import org.springframework.web.cors.CorsConfiguration
 import reactor.core.publisher.Mono
+import java.util.List
+
 
 @Configuration
 @EnableWebFluxSecurity
@@ -23,6 +26,13 @@ class WebSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        http.cors().configurationSource { request ->
+            val cors = CorsConfiguration()
+            cors.allowedOrigins = List.of("http://localhost:3000", "https://jigglog.com")
+            cors.allowedMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            cors.allowedHeaders = List.of("*")
+            cors
+        }
         return http
             .requestCache()
             .requestCache(NoOpServerRequestCache.getInstance()).and()
