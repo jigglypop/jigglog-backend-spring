@@ -12,8 +12,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache
 import org.springframework.web.cors.CorsConfiguration
 import reactor.core.publisher.Mono
-import java.util.List
-
 
 @Configuration
 @EnableWebFluxSecurity
@@ -27,11 +25,11 @@ class WebSecurityConfig {
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         http.cors().configurationSource { request ->
-
             val cors = CorsConfiguration()
             cors.allowedOrigins = listOf("http://localhost:3000", "https://jigglog.com")
             cors.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
             cors.allowedHeaders = listOf("*")
+            cors.exposedHeaders = listOf("Authorization")
             cors
         }
         return http
