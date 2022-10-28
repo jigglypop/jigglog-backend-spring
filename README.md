@@ -167,4 +167,6 @@ ssh -i ./jigglog.pem ubuntu@3.34.2.233
 rm /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled
 sudo vim /etc/nginx/sites-enabled/default
+
+
 ```
