@@ -58,7 +58,7 @@ class AuthHandler(
             Mono.zip(securityService.generateToken(it), authService.getUser(it))
             // 응답
         }.flatMap {
-            ok().header("Authorization", "Bearer " + it.t1).body(
+            ok().header("token", "Bearer " + it.t1).body(
                 Mono.just(it.t2)
             )
         }.onErrorResume(Exception::class.java) {
@@ -85,7 +85,7 @@ class AuthHandler(
             Mono.zip(securityService.generateToken(user!!), user.toMono())
             // 응답
         }.flatMap {
-            ok().header("Authorization", "Bearer " + it.t1).body(
+            ok().header("token", "Bearer " + it.t1).body(
                 Mono.just(it.t2)
             )
         }.onErrorResume(Exception::class.java) {
