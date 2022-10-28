@@ -27,6 +27,7 @@ class WebSecurityConfig {
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         http.cors().configurationSource { request ->
+
             val cors = CorsConfiguration()
             cors.allowedOrigins = List.of("http://localhost:3000", "https://jigglog.com")
             cors.allowedMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
