@@ -29,7 +29,7 @@ class WebSecurityConfig {
             cors.allowedOrigins = listOf("http://localhost:3000", "https://jigglog.com")
             cors.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
             cors.allowedHeaders = listOf("*")
-            cors.exposedHeaders = listOf("Authorization")
+            cors.exposedHeaders = listOf("Authorization", "token")
             cors
         }
         return http
