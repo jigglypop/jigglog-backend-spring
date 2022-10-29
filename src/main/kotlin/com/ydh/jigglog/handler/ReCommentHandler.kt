@@ -44,7 +44,13 @@ class ReCommentHandler(
             val recommentForm = it.t1
             val user = it.t2
             val commentId = req.pathVariable("commentId").toInt()
-            recommentService.createReComment(recommentForm, user.id, commentId)
+            Mono.zip(
+                recommentService.createReComment(recommentForm, user.id, commentId).toMono(),
+                commentService.getComment(commentId).toMono()
+            )
+        }.flatMap {
+            val comment = it.t2
+            commentService.getCommentByPostId(comment.postId!!.toInt()).toMono()
         }.flatMap {
             ok().body(it.toMono())
         }.onErrorResume(Exception::class.java) {
@@ -66,14 +72,22 @@ class ReCommentHandler(
             val recomment = it.t2
             Mono.zip(
                 securityService.checkIsOwner(user.id, recomment.userId!!).toMono(),
-                recomment.toMono()
+                recomment.toMono(),
+                commentService.getComment(recomment.commentId!!.toInt()).toMono()
             )
         // 삭제
         }.flatMap {
             val recomment = it.t2
-            recommentService.deleteReComment(recomment.id).toMono()
+            val comment = it.t3
+            Mono.zip(
+                recommentService.deleteReComment(recomment.id).toMono(),
+                comment.toMono()
+            )
         }.flatMap {
-            ok().body(mapOf("message" to "대댓글 삭제가 완료되었습니다.").toMono()).toMono()
+            val comment = it.t2
+            commentService.getCommentByPostId(comment.postId!!.toInt()).toMono()
+        }.flatMap {
+            ok().body(it.toMono()).toMono()
         }.onErrorResume(Exception::class.java) {
             badRequest().body(
                 mapOf("message" to it.message).toMono()

@@ -27,7 +27,7 @@ class WebSecurityConfig {
         http.cors().configurationSource { request ->
             val cors = CorsConfiguration()
             cors.allowedOrigins = listOf("http://localhost:3000", "https://jigglog.com")
-            cors.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            cors.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
             cors.allowedHeaders = listOf("*")
             cors.exposedHeaders = listOf("Authorization", "token")
             cors

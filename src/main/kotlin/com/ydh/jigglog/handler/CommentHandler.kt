@@ -1,6 +1,5 @@
 package com.ydh.jigglog.handler
 
-import com.ydh.jigglog.domain.dto.CommentDTO
 import com.ydh.jigglog.domain.dto.CommentFormDTO
 import com.ydh.jigglog.service.*
 import org.slf4j.LoggerFactory
@@ -55,7 +54,12 @@ class CommentHandler(
             val commentForm = it.t1
             val user = it.t2
             val postId = req.pathVariable("postId").toInt()
-            commentService.createComment(commentForm, user.id, postId)
+            Mono.zip(
+                commentService.createComment(commentForm, user.id, postId).toMono(),
+                postId.toMono()
+            )
+        }.flatMap {
+            commentService.getCommentByPostId(it.t2)
         }.flatMap {
             ok().body(it.toMono())
         }.onErrorResume(Exception::class.java) {
@@ -75,16 +79,26 @@ class CommentHandler(
         }.flatMap {
             val user = it.t1
             val comment = it.t2
+            val postId = comment.postId
             Mono.zip(
                 securityService.checkIsOwner(user.id, comment.userId!!).toMono(),
-                comment.toMono()
+                comment.toMono(),
+                postId.toMono()
             )
         // 삭제
         }.flatMap {
             val comment = it.t2
-            commentService.deleteComment(comment.id).toMono()
+            val postId = it.t3
+            Mono.zip(
+                commentService.deleteComment(comment.id).toMono(),
+                postId.toMono()
+            )
+        // 가져오기
         }.flatMap {
-            ok().body(mapOf("message" to "댓글 삭제가 완료되었습니다.").toMono()).toMono()
+            val postId = it.t2
+            commentService.getCommentByPostId(postId).toMono()
+        }.flatMap {
+            ok().body(it.toMono())
         }.onErrorResume(Exception::class.java) {
             badRequest().body(
                 mapOf("message" to it.message).toMono()

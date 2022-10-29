@@ -1,5 +1,6 @@
 package com.ydh.jigglog.handler
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.ydh.jigglog.service.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

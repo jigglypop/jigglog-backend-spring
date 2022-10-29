@@ -85,7 +85,7 @@ class CommentService (
                             summary = commentsAll.comment_summary,
                         )
                     )
-                    comment.recomments.add(recomment)
+                    if (recomment.id != 0) comment.recomments.add(recomment)
                     comment_idx[commentsAll.comment_id] = comment
                 }
             }

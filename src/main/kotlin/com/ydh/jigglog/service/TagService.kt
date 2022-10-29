@@ -1,6 +1,9 @@
 package com.ydh.jigglog.service
 
+import com.ydh.jigglog.domain.dto.PostInCategoryDTO
+import com.ydh.jigglog.domain.dto.UserInPostCategoryDTO
 import com.ydh.jigglog.domain.entity.Tag
+import com.ydh.jigglog.repository.PostRepository
 import com.ydh.jigglog.repository.PostToTagRepository
 import com.ydh.jigglog.repository.TagRepository
 import org.slf4j.LoggerFactory
@@ -14,6 +17,7 @@ import reactor.kotlin.core.publisher.toMono
 @Controller
 class TagService (
     @Autowired private val tagRepository: TagRepository,
+    @Autowired private val postRepository: PostRepository,
     @Autowired private val postToTagRepository: PostToTagRepository
 ) {
     companion object {
@@ -95,4 +99,34 @@ class TagService (
                 postToTagRepository.deleteByPostId(it).toMono()
             }
     }
+
+    // 태그 아이디로 포스트 가져오기
+    fun getAllPostByTagId(tagId: Int, offset: Int, limit: Int? = 8): Mono<List<PostInCategoryDTO>> {
+        return  Mono.just(tagId).flatMap { tagId ->
+            postRepository.findAllByTagId(tagId, offset, limit).collectList().toMono()
+        }.flatMap{
+            var posts = mutableListOf<PostInCategoryDTO>()
+            for (post in it) {
+                var result = PostInCategoryDTO(
+                    id = post.id,
+                    summary = post.summary,
+                    title = post.title,
+                    createdAt = post.createdat,
+                    postcount = post.postcount,
+                    viewcount = post.viewcount,
+                    commentcount = post.commentcount,
+                    last = post.last,
+                    images = post.images,
+                    user = UserInPostCategoryDTO(
+                        id = post.userid,
+                        username = post.username,
+                        imageUrl = post.imageurl,
+                    )
+                )
+                posts.add(result)
+            }
+            posts.toMono()
+        }
+    }
+
 }
