@@ -39,6 +39,26 @@ class ValidationService (
             }
         }
     }
+
+    fun checkNotValidUsername(userForm: UserFormDTO): Mono<UserFormDTO> {
+        return userRepository.existsByUsername(userForm.username!!).flatMap {
+            if (it) {
+                userForm.toMono()
+            } else {
+                throw error("해당 이름의 유저가 없습니다")
+            }
+        }
+    }
+
+    fun checkUsernameBoolean(userForm: UserFormDTO): Mono<Boolean> {
+        return userRepository.existsByUsername(userForm.username!!).flatMap {
+            if (it) {
+                true.toMono()
+            } else {
+                false.toMono()
+            }
+        }
+    }
 }
 
 

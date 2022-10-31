@@ -13,6 +13,7 @@ class AuthRouter(private val handler: AuthHandler) {
             GET("/test", handler::test)
             POST("/register", handler::register)
             POST("/login", handler::login)
+            POST("/comment", handler::comment)
             GET("/check", handler::check)
         }
     }
