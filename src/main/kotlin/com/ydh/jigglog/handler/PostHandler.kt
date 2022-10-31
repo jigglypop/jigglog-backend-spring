@@ -88,7 +88,18 @@ class PostHandler(
                 mapOf("message" to it.message).toMono()
             )
         }
-
+    // 포스트 패스 가져오기
+    fun path(req: ServerRequest) = Mono.just(req)
+        // 포스트 가져오기
+        .flatMap {
+            postService.getPostPath()
+        }.flatMap {
+            ok().body(it.toMono())
+        }.onErrorResume(Exception::class.java) {
+            badRequest().body(
+                mapOf("message" to it.message).toMono()
+            )
+        }
     // 포스트 업데이트
     fun update(req: ServerRequest) = req
         .bodyToMono(UpdateFormDTO::class.java)

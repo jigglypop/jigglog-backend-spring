@@ -2,6 +2,7 @@ package com.ydh.jigglog.service
 
 import com.ydh.jigglog.domain.dto.PostDTO
 import com.ydh.jigglog.domain.dto.PostFormDTO
+import com.ydh.jigglog.domain.dto.PostPathDTO
 import com.ydh.jigglog.domain.dto.UpdateFormDTO
 import com.ydh.jigglog.domain.entity.*
 import com.ydh.jigglog.repository.*
@@ -61,7 +62,23 @@ class PostService (
                 postRepository.findById(postId).toMono()
             }
     }
+    // 포스트 패스 가져오기
+    fun getPostPath(): Mono<List<PostPathDTO>> {
+        return Mono.just(true)
+            .flatMap {
+                postRepository.findAll().collectList().toMono()
+            }.flatMap {
+                val postPath = mutableListOf<PostPathDTO>()
+                for (post in it) {
+                    postPath.add(PostPathDTO(
+                        id = post.id,
+                        title = post.title
+                    ))
 
+                }
+                postPath.toMono()
+            }
+    }
     // 포스트 (유저, 태그) 가져오기
     fun getPost(postId: Int): Mono<PostDTO?> {
         return Mono.just(postId)

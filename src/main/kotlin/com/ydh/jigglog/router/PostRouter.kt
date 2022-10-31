@@ -12,6 +12,7 @@ class PostRouter(private val handler: PostHandler) {
     fun postRouterFunction() = router {
         "/api/post".nest {
             POST("", handler::save)
+            GET("/path", handler::path)
             GET("/{postId}", handler::get)
             PATCH("/{postId}", handler::update)
             DELETE("/{postId}", handler::delete)
