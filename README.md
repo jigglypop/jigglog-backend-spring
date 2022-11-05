@@ -14,6 +14,8 @@ docker run --rm -p8080:8080 -e "SPRING_PROFILES_ACTIVE=docker" post
 // 메모리 정리
 docker system prune --volumes
 
+
+
 // 도커 캐시 삭제
 docker system prune --volumes
 
