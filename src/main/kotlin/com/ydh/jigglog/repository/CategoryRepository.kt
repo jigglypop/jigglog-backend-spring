@@ -14,18 +14,35 @@ interface CategoryRepository: ReactiveCrudRepository<Category, Int> {
     fun findByTitle(title: String): Mono<Category>
 
     @Query(
-        "SELECT categories.* " +
-            "FROM ( " +
-                "SELECT id, title, " +
-                "( " +
-                        "SELECT COUNT(id) " +
-                                "FROM post " +
-                                "WHERE post.categoryId = category.id " +
-                        ") as posts " +
-                "FROM category " +
-                "WHERE id != 11 AND id != 1 " +
-            ") as categories " +
-        "WHERE posts != 0; "
-    )
+    """SELECT categories.*
+            FROM ( 
+                SELECT id, title, thumbnail, (
+                    SELECT COUNT(id) 
+                    FROM post 
+                    WHERE post.categoryId = category.id 
+                ) as posts 
+                FROM category 
+                WHERE id != 11 AND id != 1
+            ) as categories
+        WHERE posts != 0; """)
     fun findAllAndCount(): Flux<CategoryDTO>
+
+    @Query("""
+            SELECT
+                c.id,
+                c.title,
+                c.imageUrl,
+                COUNT(p.id) as postCount
+            FROM
+                category c
+            LEFT JOIN
+                post p ON c.id = p.categoryId
+            WHERE
+                c.id NOT IN (11, 1)
+            GROUP BY
+                c.id, c.title, c.imageUrl
+            HAVING
+                postCount != 0;
+    """)
+    fun findCountAll(): Flux<CategoryDTO>
 }
