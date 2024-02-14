@@ -1,4 +1,4 @@
-package com.ydh.jigglog.handler
+package com.ydh.jigglog.domain.dto.handler
 
 import com.ydh.jigglog.domain.dto.PostFormDTO
 import com.ydh.jigglog.domain.dto.UpdateFormDTO

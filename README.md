@@ -1,4 +1,4 @@
-## spring boot MSA
+## 코프링부트 Webflux
 
 ```shell
 ./gradlew :microservices:post:build
@@ -171,4 +171,18 @@ rm /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled
 sudo vim /etc/nginx/sites-enabled/default
 
+```
+
+
+```shell
+
+docker run -d -p 9200:9200 -p 9300:9300 -it -h elasticsearch elasticsearch
+
+git clone https://github.com/justmeandopensource/elk
+
+cd elk
+
+cd docker
+
+docker-compose up -d
 ```

@@ -32,6 +32,8 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.springframework.security:spring-security-test")
+	// 엘라스틱 서치
+	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	implementation("org.jasypt:jasypt:1.9.3")
@@ -46,6 +48,3 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
-//tasks.withType<Test> {
-//	useJUnitPlatform()
-//}

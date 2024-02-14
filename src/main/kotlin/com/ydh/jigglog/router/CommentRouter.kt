@@ -1,6 +1,6 @@
 package com.ydh.jigglog.router
 
-import com.ydh.jigglog.handler.CommentHandler
+import com.ydh.jigglog.domain.dto.handler.CommentHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.router

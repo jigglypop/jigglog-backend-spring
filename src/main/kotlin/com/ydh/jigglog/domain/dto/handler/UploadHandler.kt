@@ -1,4 +1,4 @@
-package com.ydh.jigglog.handler
+package com.ydh.jigglog.domain.dto.handler
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.ydh.jigglog.service.*
