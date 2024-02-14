@@ -1,7 +1,6 @@
 package com.ydh.jigglog.ElasticSearch
 
 import com.ydh.jigglog.domain.domain.PostDomain
-import com.ydh.jigglog.repository.ElasticPostRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.DisplayName
