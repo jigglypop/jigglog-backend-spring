@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ydh.jigglog.domain.dto.CategoryDTO
 import com.ydh.jigglog.domain.dto.CategoryListDTO
 import com.ydh.jigglog.domain.entity.Category
+import com.ydh.jigglog.domain.entity.Post
 import com.ydh.jigglog.domain.entity.Tag
 import com.ydh.jigglog.domain.entity.User
 import org.springframework.beans.factory.annotation.Value
@@ -62,6 +63,12 @@ open class RedisConfig {
 	fun userReactiveRedisTemplate(
 		factory: ReactiveRedisConnectionFactory,
 	): ReactiveRedisTemplate<String, User> = commonReactiveRedisTemplate(factory, User::class.java)
+
+
+	@Bean
+	fun resumeReactiveRedisTemplate(
+		factory: ReactiveRedisConnectionFactory,
+	): ReactiveRedisTemplate<String, Post> = commonReactiveRedisTemplate(factory, Post::class.java)
 
 	@Bean
 	fun categoryReactiveRedisTemplate(
