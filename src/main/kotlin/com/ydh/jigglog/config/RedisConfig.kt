@@ -19,12 +19,12 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 
 
 @Configuration
-class RedisConfig {
+open class RedisConfig {
 	@Value("\${spring.redis.port}")
-	var port = 0
+	lateinit var port: String
 
 	@Value("\${spring.redis.host}")
-	var host: String = ""
+	lateinit var host: String
 
 	/**
 	 * ReactiveRedisTemplate를 생성하기 위한 공통 로직을 선언한 메소드
