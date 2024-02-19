@@ -1,4 +1,4 @@
-package com.ydh.jigglog.domain.dto.handler
+package com.ydh.jigglog.handler
 
 import com.ydh.jigglog.domain.entity.Tag
 import com.ydh.jigglog.service.*

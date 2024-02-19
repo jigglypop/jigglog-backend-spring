@@ -5,7 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.ydh.jigglog.domain.entity.Upload
-import com.ydh.jigglog.domain.dto.handler.UploadHandler
+import com.ydh.jigglog.handler.UploadHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.buffer.DataBuffer

@@ -2,6 +2,7 @@ package com.ydh.jigglog.service
 
 import com.ydh.jigglog.domain.dto.UserFormDTO
 import com.ydh.jigglog.domain.entity.User
+import com.ydh.jigglog.repository.UserCacheRepository
 import com.ydh.jigglog.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
@@ -9,7 +10,8 @@ import reactor.core.publisher.Mono
 
 @Controller
 class AuthService (
-   private val userRepository: UserRepository
+   private val userRepository: UserRepository,
+   private val userCacheRepository: UserCacheRepository
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(AuthService::class.java)
@@ -45,12 +47,14 @@ class AuthService (
     }
     // 유저 이름으로 가져오기
     fun getUserByUsername(username: String): Mono<User> {
-        return userRepository.findByUsername(username).flatMap {
-            if (it == null) {
-                throw error("유저가 없습니다")
-            } else {
-                Mono.just(it)
-            }
-        }
+//        return userRepository.findByUsername(username).cache().flatMap {
+//            if (it == null) {
+//                throw error("유저가 없습니다")
+//            } else {
+//                Mono.just(it)
+//            }
+//        }
+        return userCacheRepository.findByNameWithCaching(username)
+
     }
 }

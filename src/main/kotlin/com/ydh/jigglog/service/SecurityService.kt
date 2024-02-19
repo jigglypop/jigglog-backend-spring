@@ -54,7 +54,7 @@ class SecurityService(
         }
     }
     // 토큰의 받는 형식(Bearer) 검사
-    fun checkValidHeader(mono: ServerRequest.Headers): Mono<String?> {
+   fun checkValidHeader(mono: ServerRequest.Headers): Mono<String?> {
         return Mono.just(mono).flatMap {
             val tokens = it.asHttpHeaders().getFirst("Authorization")?.split(" ")
             if (tokens?.get(0).equals("Bearer")) {
@@ -89,7 +89,7 @@ class SecurityService(
         }
     }
     // 객체 유저 체크
-    fun checkIsOwner(userId: Int, writer: Int): Mono<Boolean> {
+   fun checkIsOwner(userId: Int, writer: Int): Mono<Boolean> {
         return writer.toMono().flatMap {
             if (it == userId) {
                 true.toMono()

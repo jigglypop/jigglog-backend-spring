@@ -1,6 +1,6 @@
 package com.ydh.jigglog.router
 
-import com.ydh.jigglog.domain.dto.handler.PostHandler
+import com.ydh.jigglog.handler.PostHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
