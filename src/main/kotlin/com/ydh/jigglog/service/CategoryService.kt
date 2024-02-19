@@ -72,7 +72,7 @@ class CategoryService (
     }
 
     // 카테고리 캐시 확인하고 없으면 생성
-    fun getAllAndCache(): Mono<CategoryListDTO> {
+    fun getAllAndCache(): Mono<MutableList<CategoryDTO>> {
         return categoryCacheRepository.findAllAndCaching()
             .switchIfEmpty(
                 categoryRepository
@@ -81,6 +81,20 @@ class CategoryService (
                     .flatMap {
                         categoryCacheRepository.setCategoriesAllAndCaching(it)
                     }
-        )
+        ).flatMap {
+            it.categories.toMono()
+        }
+    }
+
+
+    // 카테고리 캐시 리셋
+    fun resetCategoryCash(): Mono<CategoryListDTO> {
+            return categoryRepository
+                .findAllAndCount()
+                .collectList()
+                .flatMap {
+                    categoryCacheRepository.setCategoriesAllAndCaching(it)
+                }
+
     }
 }

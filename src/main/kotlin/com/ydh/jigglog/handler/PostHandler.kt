@@ -69,7 +69,13 @@ class PostHandler(
             val user = it.t4
             postService.createPost(user, postForm, category, tags)
         }.flatMap {
-            ok().body(it.toMono())
+            Mono.zip(
+                it.toMono(),
+                categoryService.resetCategoryCash()
+            )
+
+        }.flatMap {
+            ok().body(it.t1.toMono())
         }.onErrorResume(Exception::class.java) {
             badRequest().body(
                 mapOf("message" to it.message).toMono()
@@ -143,6 +149,7 @@ class PostHandler(
         }.flatMap {
             postService.deltePost(req.pathVariable("postId").toInt()).toMono()
         }.flatMap {
+            categoryService.resetCategoryCash()
             ok().body(mapOf("message" to "포스트 삭제가 완료되었습니다.").toMono()).toMono()
         }.onErrorResume(Exception::class.java) {
             badRequest().body(
