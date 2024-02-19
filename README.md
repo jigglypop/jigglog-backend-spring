@@ -16,6 +16,8 @@ docker system prune --volumes
 
 
 
+
+
 // 도커 캐시 삭제
 docker system prune --volumes
 
