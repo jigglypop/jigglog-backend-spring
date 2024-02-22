@@ -1,6 +1,3 @@
-docker rm -f $(docker ps -aq)
-docker rmi $(docker images -q)
-
 echo "before deploy 시작" >> /home/ubuntu/log.txt
 
 cd /home/ubuntu >> /home/ubuntu/log.txt

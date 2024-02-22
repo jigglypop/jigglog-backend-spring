@@ -22,7 +22,6 @@ class AuthService (
             username = userForm.username,
             hashedPassword = userForm.password
         )
-        logger.info(user.username, user.hashedPassword, user.email)
         return userRepository.save(user)
     }
     // 유저 아이디로 가져오기

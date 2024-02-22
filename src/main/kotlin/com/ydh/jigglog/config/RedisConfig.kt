@@ -71,6 +71,11 @@ open class RedisConfig {
 	): ReactiveRedisTemplate<String, Post> = commonReactiveRedisTemplate(factory, Post::class.java)
 
 	@Bean
+	fun postReactiveRedisTemplate(
+		factory: ReactiveRedisConnectionFactory,
+	): ReactiveRedisTemplate<String, Post> = commonReactiveRedisTemplate(factory, Post::class.java)
+
+	@Bean
 	fun categoryReactiveRedisTemplate(
 		factory: ReactiveRedisConnectionFactory,
 	): ReactiveRedisTemplate<String, CategoryListDTO> = commonReactiveRedisTemplate(factory, CategoryListDTO::class.java)

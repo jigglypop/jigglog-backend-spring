@@ -10,6 +10,8 @@ import reactor.core.publisher.Flux
 
 @Repository
 interface PostRepository: ReactiveCrudRepository<Post, Int> {
+
+
     @Query(
         "SELECT * " +
         "FROM tag " +
