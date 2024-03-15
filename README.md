@@ -179,6 +179,7 @@ sudo vim /etc/nginx/sites-enabled/default
 
 ```shell
 
+
 docker run -d -p 9200:9200 -p 9300:9300 -it -h elasticsearch elasticsearch
 
 git clone https://github.com/justmeandopensource/elk
