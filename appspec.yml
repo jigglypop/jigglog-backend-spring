@@ -13,10 +13,10 @@ permissions:
     mode: 755
 hooks:
   BeforeInstall:
-    - location: ./scripts/before_deploy.sh
+    - location: /home/ubuntu/jigglogkotlin/scripts/before_deploy.sh
       timeout: 300
       runas: ubuntu
   AfterInstall:
-    - location: ./scripts/after_deploy.sh
+    - location: /home/ubuntu/jigglogkotlin/scripts/after_deploy.sh
       timeout: 300
       runas: ubuntu
