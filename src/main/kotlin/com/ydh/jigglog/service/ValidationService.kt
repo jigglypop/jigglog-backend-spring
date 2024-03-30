@@ -18,7 +18,7 @@ class ValidationService (
         private val logger = LoggerFactory.getLogger(ValidationService::class.java)
     }
 
-    fun <T>checkValidForm(mono: T, form: Map<String?, String?>): Mono<T> {
+    fun <T : Any>checkValidForm(mono: T, form: Map<String?, String?>): Mono<T> {
         val valid = form.filter { it.value == null || it.value == "" }
         // 밸리데이션을 만족할 경우
         return if (valid.keys.isEmpty()) {

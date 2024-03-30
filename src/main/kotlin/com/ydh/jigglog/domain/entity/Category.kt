@@ -9,6 +9,8 @@ class Category(
     @Id
     var id: Int = 0,
     @Column("title")
-    val title: String? = "",
+    var title: String? = "",
+    @Column("thumbnail")
+    var thumbnail: String? = "",
 )
 
