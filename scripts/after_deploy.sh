@@ -1,5 +1,5 @@
 REPOSITORY=/home/ubuntu/jigglogkotlin
-PROJECT_NAME=jigglogkotlin
+PROJECT_NAME=jigglogkotlin-spring-boot
 
 echo "> Build 파일 복사" >> /home/ubuntu/log.txt
 
