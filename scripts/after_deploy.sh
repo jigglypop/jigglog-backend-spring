@@ -1,4 +1,5 @@
 REPOSITORY=/home/ubuntu/jigglogkotlin
+DOCKERFILE=/home/ubuntu/jigglogkotlin/docker-compose.yml
 PROJECT_NAME=jigglogkotlin-spring-boot
 
 echo "> Build 파일 복사" >> /home/ubuntu/log.txt
@@ -28,5 +29,5 @@ echo "> JAR Name: $JAR_NAME" >> /home/ubuntu/log.txt
 #java -jar $REPOSITORY/$JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
 #nohup java -jar $REPOSITORY/$JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
 cd $REPOSITORY || exit
-sudo docker build -t /home/ubuntu/jigglogkotlin . &&
-sudo docker compose -f /home/ubuntu/jigglogkotlin/docker-compose.yml up -d --build
+sudo docker build -t jigglogkotlin -f $REPOSITORY . &&
+sudo docker compose -f $DOCKERFILE up -d --build
