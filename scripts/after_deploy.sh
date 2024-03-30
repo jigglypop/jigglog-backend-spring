@@ -29,5 +29,5 @@ echo "> JAR Name: $JAR_NAME" >> /home/ubuntu/log.txt
 #java -jar $REPOSITORY/$JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
 #nohup java -jar $REPOSITORY/$JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
 cd $REPOSITORY || exit
-sudo docker build -t jigglogkotlin -f /home/ubuntu/jigglogkotlin . &&
+sudo docker build -t jigglogkotlin -f /home/ubuntu/jigglogkotlin/Dockerfile &&
 sudo docker compose -f $DOCKERFILE up -d --build
