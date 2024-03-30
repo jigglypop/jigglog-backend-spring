@@ -9,6 +9,8 @@ import com.ydh.jigglog.service.ValidationService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse.badRequest
@@ -25,6 +27,7 @@ class AuthHandler(
     @Autowired val passwordService: PasswordService,
     @Autowired val validationService: ValidationService,
     @Autowired val authService: AuthService,
+    @Autowired val redisTemplate: ReactiveRedisTemplate<String, User>
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(AuthHandler::class.java)

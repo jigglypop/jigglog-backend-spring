@@ -1,9 +1,11 @@
 package com.ydh.jigglog.service
 
 import com.ydh.jigglog.domain.dto.CategoryDTO
+import com.ydh.jigglog.domain.dto.CategoryListDTO
 import com.ydh.jigglog.domain.dto.PostInCategoryDTO
 import com.ydh.jigglog.domain.dto.UserInPostCategoryDTO
 import com.ydh.jigglog.domain.entity.Category
+import com.ydh.jigglog.repository.CategoryCacheRepository
 import com.ydh.jigglog.repository.CategoryRepository
 import com.ydh.jigglog.repository.PostRepository
 import org.slf4j.LoggerFactory
@@ -16,6 +18,7 @@ import reactor.kotlin.core.publisher.toMono
 @Controller
 class CategoryService (
     @Autowired private val categoryRepository: CategoryRepository,
+    @Autowired private val categoryCacheRepository: CategoryCacheRepository,
     @Autowired private val postRepository: PostRepository
 
 ) {
@@ -66,5 +69,32 @@ class CategoryService (
                 categoryRepository.save(Category(title = title))
             }
         }
+    }
+
+    // 카테고리 캐시 확인하고 없으면 생성
+    fun getAllAndCache(): Mono<MutableList<CategoryDTO>> {
+        return categoryCacheRepository.findAllAndCaching()
+            .switchIfEmpty(
+                categoryRepository
+                    .findAllAndCount()
+                    .collectList()
+                    .flatMap {
+                        categoryCacheRepository.setCategoriesAllAndCaching(it)
+                    }
+        ).flatMap {
+            it.categories.toMono()
+        }
+    }
+
+
+    // 카테고리 캐시 리셋
+    fun resetCategoryCash(): Mono<CategoryListDTO> {
+            return categoryRepository
+                .findAllAndCount()
+                .collectList()
+                .flatMap {
+                    categoryCacheRepository.setCategoriesAllAndCaching(it)
+                }
+
     }
 }

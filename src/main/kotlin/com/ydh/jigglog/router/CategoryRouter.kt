@@ -11,6 +11,7 @@ class CategoryRouter(private val handler: CategoryHandler) {
     fun categoryRouterFunction() = router {
         "/api/category".nest {
             GET("", handler::getAll)
+            GET("/cache", handler::getAllAndCache)
             GET("/{categoryId}", handler::getAllPostByCategoryId)
         }
     }

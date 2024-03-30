@@ -30,7 +30,18 @@ class CategoryHandler(
                 Mono.just(it)
             )
         }
-
+    fun getAllAndCache(req: ServerRequest) = Mono.just(req)
+        .flatMap {
+            categoryService.getAllAndCache()
+        }.flatMap {
+            ok().body(
+                Mono.just(it)
+            )
+        }.onErrorResume(Exception::class.java) {
+            badRequest().body(
+                Mono.just(it)
+            )
+        }
     // 카테고리 아이디로 포스트 모두 가져오기
     fun getAllPostByCategoryId(req: ServerRequest) = Mono.just(req)
         .flatMap {

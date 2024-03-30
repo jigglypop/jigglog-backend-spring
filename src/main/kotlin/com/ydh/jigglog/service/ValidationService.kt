@@ -30,7 +30,7 @@ class ValidationService (
 
     }
 
-    fun checkValidUsername(userForm: UserFormDTO): Mono<UserFormDTO> {
+   fun checkValidUsername(userForm: UserFormDTO): Mono<UserFormDTO> {
         return userRepository.existsByUsername(userForm.username!!).flatMap {
             if (it) {
                 throw error("이미 같은 이름의 유저가 있습니다")

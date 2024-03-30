@@ -28,6 +28,7 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+.env
 
 ### NetBeans ###
 /nbproject/private/
@@ -38,3 +39,4 @@ out/
 
 ### VS Code ###
 .vscode/
+.DS_store

@@ -9,9 +9,7 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
 
 @Repository
-interface PostRepository: ReactiveCrudRepository<Post, Int> {
-
-
+interface ResumeRepository: ReactiveCrudRepository<Post, Int> {
     @Query(
         "SELECT * " +
         "FROM tag " +

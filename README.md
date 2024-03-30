@@ -1,4 +1,4 @@
-## spring boot MSA
+## 코프링부트 Webflux
 
 ```shell
 ./gradlew :microservices:post:build
@@ -13,6 +13,8 @@ docker run --rm -p8080:8080 -e "SPRING_PROFILES_ACTIVE=docker" post
 
 // 메모리 정리
 docker system prune --volumes
+
+
 
 
 
@@ -163,6 +165,7 @@ sudo service codedeploy-agent status
 ```shell
 sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
 ssh -i ./jigglog.pem ubuntu@3.34.2.233
+
 ```
 
 
@@ -171,4 +174,18 @@ rm /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled
 sudo vim /etc/nginx/sites-enabled/default
 
+```
+
+
+```shell
+
+docker run -d -p 9200:9200 -p 9300:9300 -it -h elasticsearch elasticsearch
+
+git clone https://github.com/justmeandopensource/elk
+
+cd elk
+
+cd docker
+
+docker-compose up -d
 ```

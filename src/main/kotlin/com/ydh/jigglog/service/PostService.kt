@@ -17,7 +17,8 @@ class PostService (
     @Autowired private val postRepository: PostRepository,
     @Autowired private val userRepository: UserRepository,
     @Autowired private val categoryRepository: CategoryRepository,
-    @Autowired private val postToTagRepository: PostToTagRepository
+    @Autowired private val postToTagRepository: PostToTagRepository,
+    @Autowired private val resumeCacheRepository: ResumeCacheRepository
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(PostService::class.java)
@@ -78,6 +79,9 @@ class PostService (
                 }
                 postPath.toMono()
             }
+    }
+    fun getResume(): Mono<Post> {
+        return resumeCacheRepository.findResumeAndCaching()
     }
     // 포스트 (유저, 태그) 가져오기
     fun getPost(postId: Int): Mono<PostDTO?> {

@@ -22,7 +22,7 @@ class ResumeHandler(
     fun get(req: ServerRequest) = Mono.just(req)
         // 포스트 가져오기
         .flatMap {
-            postService.getPost(1)
+            postService.getResume()
         }.flatMap {
             ok().body(it.toMono())
         }.onErrorResume(Exception::class.java) {
@@ -30,4 +30,6 @@ class ResumeHandler(
                 mapOf("message" to it.message).toMono()
             )
         }
+
+
 }
