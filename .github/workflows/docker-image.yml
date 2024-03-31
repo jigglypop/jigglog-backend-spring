@@ -80,5 +80,5 @@ jobs:
           sudo docker rm -f $APP_NAME
           sudo docker rmi -f ${{ secrets.DOCKER_USERNAME }}/$APP_NAME
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/$APP_NAME
-          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/$APP_NAME
+          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/$APP_NAME --name $APP_NAME 
           sudo docker image prune -f
