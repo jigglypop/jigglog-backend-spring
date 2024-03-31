@@ -2,7 +2,6 @@ version: '3.7'
 services:
   redis:
     image: redis:alpine
-#    command: redis-server --port 6379
     env_file:
       - .env
     command: /bin/sh -c "redis-server --port 6379 --requirepass $REDIS_PASSWORD"
