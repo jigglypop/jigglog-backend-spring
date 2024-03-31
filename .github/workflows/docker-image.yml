@@ -45,17 +45,40 @@ jobs:
 
     - name: Make zip file
       run: zip -r ./$GITHUB_SHA.zip .
+#
+#    # S3 Bucket으로 copy
+#    - name: Deliver to AWS S3
+#      env:
+#        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
+#
+#    # Deploy
+#    - name: Deploy
+#      env:
+#        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#      run: aws deploy create-deployment --application-name $APP_NAME --deployment-group-name $GROUP_NAME --file-exists-behavior OVERWRITE --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip --region ap-northeast-2
 
-    # S3 Bucket으로 copy
-    - name: Deliver to AWS S3
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
 
-    # Deploy
-    - name: Deploy
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: aws deploy create-deployment --application-name $APP_NAME --deployment-group-name $GROUP_NAME --file-exists-behavior OVERWRITE --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip --region ap-northeast-2
+    # docker build & push to production
+    - name: Docker build & push to prod
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin .
+        docker push ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin
+
+    - name: Deploy to prod
+      uses: appleboy/ssh-action@master
+      with:
+        key: ${{ secrets.AWS_SSH_KEY }}
+        host: ${{ secrets.EC2_HOST_IP4_PUBLIC }} # EC2 퍼블릭 IPv4 DNS
+        username: ubuntu
+        port: 22
+        script: |
+          sudo docker ps
+          sudo docker rm -f jigglogkotlin
+          sudo docker rmi -f ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin
+          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin
+          sudo docker image prune -f
