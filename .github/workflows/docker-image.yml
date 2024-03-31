@@ -65,8 +65,8 @@ jobs:
     - name: Docker build & push to prod
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }} .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}
+        docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin .
+        docker push ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin
 
     - name: Deploy to prod
       uses: appleboy/ssh-action@master
@@ -77,6 +77,6 @@ jobs:
         port: 22
         script: |
           sudo docker ps
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{APP_NAME}}
-          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }} --name ${{ env.APP_NAME }} 
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin
+          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/jigglogkotlin --name jigglogkotlin 
           sudo docker image prune -f
