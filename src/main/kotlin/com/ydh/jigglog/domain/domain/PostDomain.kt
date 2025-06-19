@@ -1,11 +1,9 @@
 package com.ydh.jigglog.domain.domain
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.relational.core.mapping.Column
 import java.time.LocalDateTime
 
-@Document(indexName = "post")
 class PostDomain(
     @Id
     var id: Int = 0,

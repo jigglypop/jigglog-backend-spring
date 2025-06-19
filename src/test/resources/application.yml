@@ -1,0 +1,62 @@
+spring:
+  profiles:
+    active: test
+  main:
+    allow-bean-definition-overriding: true
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    database: testdb
+    port: 0
+  
+  redis:
+    host: localhost
+    port: 6379
+    database: 1
+    password: ""
+    
+  elasticsearch:
+    rest:
+      uris: http://localhost:9200
+      
+  cache:
+    type: simple
+    
+  datasource:
+    owner: admin
+    secretuser: test-secret-user
+    secretpassword: test-password
+    salt: test-salt
+
+cloud:
+  aws:
+    region:
+      static: us-east-1
+    s3:
+      bucket: test-bucket
+      dir: test
+    credentials:
+      access-key: dummy
+      secret-key: dummy
+
+auth:
+  user: USER
+  manager: MANAGER
+  admin: ADMIN
+  service:
+    url: http://localhost:8081
+
+logging:
+  level:
+    com.ydh.jigglog: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc.h2: DEBUG
+
+jwt:
+  secret: dGVzdC1zZWNyZXQta2V5LWZvci10ZXN0aW5nLXB1cnBvc2VzLW9ubHk=
+  expiration: 3600000
+
+test:
+  database:
+    init-mode: always 

@@ -13,7 +13,7 @@ import java.util.*
 
 @Service
 class SecurityService(
-    @param:Value("\${spring.datasource.jwt-secret}") private val jwt_secret: String,
+    @param:Value("\${jwt.secret}") private val jwt_secret: String,
     @Autowired private val userRepository: UserRepository,
     ) {
     // JWT_SECRET

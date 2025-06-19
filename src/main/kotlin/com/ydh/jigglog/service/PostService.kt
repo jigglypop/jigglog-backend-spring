@@ -8,11 +8,11 @@ import com.ydh.jigglog.domain.entity.*
 import com.ydh.jigglog.repository.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Controller
+import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
-@Controller
+@Service
 class PostService (
     @Autowired private val postRepository: PostRepository,
     @Autowired private val userRepository: UserRepository,

@@ -17,7 +17,6 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 	implementation("dev.miku:r2dbc-mysql:0.8.2.RELEASE")
 	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -35,8 +34,9 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.springframework.security:spring-security-test")
-	// 엘라스틱 서치
-	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+	testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+	testImplementation("io.r2dbc:r2dbc-h2:0.8.4.RELEASE")
+	testImplementation("com.h2database:h2:2.1.214")
 
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	implementation("org.jasypt:jasypt:1.9.3")
@@ -49,5 +49,9 @@ tasks.withType<KotlinCompile> {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
 		jvmTarget = "17"
 	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
 }
 

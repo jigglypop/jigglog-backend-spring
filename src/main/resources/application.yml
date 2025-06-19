@@ -1,1 +1,49 @@
+server:
+  servlet:
+    context-path: /api
+jwt:
+  secret: kXeTDixHJBpC031yWug0
+  expiration: 72000000
 
+# auth 
+auth:
+  user: USER
+  manager: MANAGER
+  admin: ADMIN
+  service:
+    url: http://localhost:8081
+
+cloud:
+  aws:
+    region:
+      static: us-east-1
+    s3:
+      bucket: jigglog-bucket
+      dir: uploads
+    credentials:
+      access-key: dummy
+      secret-key: dummy
+
+spring:
+  datasource:
+    secretuser: admin
+    secretpassword: admin123
+    owner: root
+    salt: jigglog-salt
+  r2dbc:
+    url: host.docker.internal
+    username: root
+    password: 1127star
+    database: jigglog
+    port: 3306
+  devtools:
+    livereload:
+      enabled: true
+    freemarker:
+      cache: false
+  #  레디스
+  redis:
+    host: host.docker.internal
+    port: 6379
+  main:
+    allow-bean-definition-overriding: true

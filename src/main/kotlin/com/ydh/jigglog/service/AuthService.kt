@@ -5,10 +5,10 @@ import com.ydh.jigglog.domain.entity.User
 import com.ydh.jigglog.repository.UserCacheRepository
 import com.ydh.jigglog.repository.UserRepository
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Controller
+import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
-@Controller
+@Service
 class AuthService (
    private val userRepository: UserRepository,
    private val userCacheRepository: UserCacheRepository

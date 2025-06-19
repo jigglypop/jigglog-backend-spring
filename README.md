@@ -1,8 +1,38 @@
 ## 코프링부트 Webflux
 
+### 🧪 테스트 실행
+
+#### 빠른 테스트 (Windows)
+```shell
+# 간단한 테스트 실행
+test-summary.bat
+
+# 상세한 테스트 실행 (로그 포함)
+test-runner.bat
+```
+
+#### 수동 테스트 실행
+```shell
+# 기본 테스트 실행
+./gradlew test
+
+# 상세 로그와 함께 테스트 실행
+./gradlew test --continue --info
+
+# 특정 테스트만 실행
+./gradlew test --tests "*ServiceTest"
+./gradlew test --tests "*RepositoryTest"
+./gradlew test --tests "*HandlerTest"
+```
+
+#### 테스트 결과 확인
+- **HTML 리포트**: `build/reports/tests/test/index.html`
+- **XML 결과**: `build/test-results/test/`
+
+### 🏗️ 빌드 및 실행
+
 ```shell
 ./gradlew :microservices:post:build
-
 
 docker run --rm -p8080:8080 -e "SPRING_PROFILES_ACTIVE=docker" post
 ```
