@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import java.time.Duration
 
-//@Service
+@Service
 class ExternalAuthService(
     private val webClient: WebClient,
     @Value("\${auth.service.url:http://localhost:8081}") 
@@ -46,11 +46,11 @@ class ExternalAuthService(
             .uri("$authServiceUrl/api/auth/validate")
             .bodyValue(TokenValidationRequest(cleanToken))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError) { response ->
+            .onStatus({ it.is4xxClientError }) { response ->
                 logger.warn("Token validation failed with status: ${response.statusCode()}")
                 Mono.error(RuntimeException("Invalid token"))
             }
-            .onStatus(HttpStatus::is5xxServerError) { response ->
+            .onStatus({ it.is5xxServerError }) { response ->
                 logger.error("Auth service error with status: ${response.statusCode()}")
                 Mono.error(RuntimeException("Auth service unavailable"))
             }
@@ -79,7 +79,7 @@ class ExternalAuthService(
             .uri("$authServiceUrl/api/auth/me")
             .header("Authorization", "Bearer $cleanToken")
             .retrieve()
-            .onStatus(HttpStatus::isError) { response ->
+            .onStatus({ it.isError }) { response ->
                 logger.error("Failed to get current user: ${response.statusCode()}")
                 Mono.error(RuntimeException("Failed to get user info"))
             }
@@ -122,4 +122,4 @@ class ExternalAuthService(
                 }
             }
     }
-} 
+}

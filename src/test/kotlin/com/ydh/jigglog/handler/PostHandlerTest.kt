@@ -1,6 +1,7 @@
 package com.ydh.jigglog.handler
 
 import com.ydh.jigglog.config.TestConfig
+import com.ydh.jigglog.router.PostRouter
 import com.ydh.jigglog.domain.dto.PostFormDTO
 import com.ydh.jigglog.domain.dto.UpdateFormDTO
 import com.ydh.jigglog.domain.entity.*
@@ -19,7 +20,7 @@ import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 @WebFluxTest
-@Import(PostHandler::class, TestConfig::class)
+@Import(PostHandler::class, PostRouter::class, TestConfig::class)
 class PostHandlerTest {
 
     @Autowired
@@ -91,7 +92,7 @@ class PostHandlerTest {
         whenever(categoryService.resetCategoryCash()).thenReturn(Mono.empty())
 
         webTestClient.post()
-            .uri("/posts")
+            .uri("/api/post")
             .contentType(MediaType.APPLICATION_JSON)
             .body(BodyInserters.fromValue(testPostForm))
             .exchange()
@@ -121,7 +122,7 @@ class PostHandlerTest {
             .thenThrow(IllegalArgumentException("포스트 제목이 비어있습니다"))
 
         webTestClient.post()
-            .uri("/posts")
+            .uri("/api/post")
             .contentType(MediaType.APPLICATION_JSON)
             .body(BodyInserters.fromValue(invalidPostForm))
             .exchange()
@@ -135,7 +136,7 @@ class PostHandlerTest {
         val expectedPostDTO = createMockPostDTO()
         whenever(postService.getPost(1)).thenReturn(Mono.just(expectedPostDTO))
         webTestClient.get()
-            .uri("/posts/1")
+            .uri("/api/post/1")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -154,7 +155,7 @@ class PostHandlerTest {
             .thenReturn(Mono.error(IllegalStateException("포스트가 없습니다")))
 
         webTestClient.get()
-            .uri("/posts/999")
+            .uri("/api/post/999")
             .exchange()
             .expectStatus().isBadRequest
             .expectBody()
@@ -177,7 +178,7 @@ class PostHandlerTest {
         whenever(postService.getPostPath()).thenReturn(Mono.just(postPaths))
 
         webTestClient.get()
-            .uri("/posts/paths")
+            .uri("/api/post/path")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -229,8 +230,8 @@ class PostHandlerTest {
         whenever(securityService.isOwner(testUser)).thenReturn(Mono.just(true))
         whenever(postService.updatePost(originalPost, updateForm)).thenReturn(Mono.just(updatedPostDTO))
 
-        webTestClient.put()
-            .uri("/posts/1")
+        webTestClient.patch()
+            .uri("/api/post/1")
             .contentType(MediaType.APPLICATION_JSON)
             .body(BodyInserters.fromValue(updateForm))
             .exchange()
@@ -255,8 +256,8 @@ class PostHandlerTest {
         whenever(securityService.isOwner(testUser))
             .thenReturn(Mono.error(SecurityException("권한이 없습니다")))
 
-        webTestClient.put()
-            .uri("/posts/1")
+        webTestClient.patch()
+            .uri("/api/post/1")
             .contentType(MediaType.APPLICATION_JSON)
             .body(BodyInserters.fromValue(updateForm))
             .exchange()
@@ -273,7 +274,7 @@ class PostHandlerTest {
         whenever(categoryService.resetCategoryCash()).thenReturn(Mono.empty())
 
         webTestClient.delete()
-            .uri("/posts/1")
+            .uri("/api/post/1")
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -287,7 +288,7 @@ class PostHandlerTest {
             .thenReturn(Mono.error(SecurityException("권한이 없습니다")))
 
         webTestClient.delete()
-            .uri("/posts/1")
+            .uri("/api/post/1")
             .exchange()
             .expectStatus().isBadRequest
             .expectBody()

@@ -3,6 +3,7 @@ package com.ydh.jigglog.service
 import com.ydh.jigglog.domain.entity.User
 import com.ydh.jigglog.repository.UserRepository
 import io.jsonwebtoken.*
+import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import java.util.*
+import javax.crypto.spec.SecretKeySpec
 
 @Service
 class SecurityService(
@@ -20,6 +22,7 @@ class SecurityService(
     private val JWT_SECRET = jwt_secret
     // 토큰 유효시간
     private val JWT_EXPIRATION_MS = 604800000
+    private val secretKey = SecretKeySpec(JWT_SECRET.toByteArray(), SignatureAlgorithm.HS256.jcaName)
 
     @Value("\${spring.datasource.owner}")
     lateinit var owner: String
@@ -32,14 +35,14 @@ class SecurityService(
             .setSubject(user.username)  // 사용자 이름
             .setIssuedAt(Date()) // 현재 시간 기반으로 생성
             .setExpiration(expiryDate) // 만료 시간 세팅
-            .signWith(SignatureAlgorithm.HS256, JWT_SECRET) // (6)
+            .signWith(secretKey, SignatureAlgorithm.HS256)
             .compact()
         return Mono.just(build)
     }
     // jwt 토큰 파싱
     fun parseJwtToken(token: String?): Claims {
         return Jwts.parser()
-            .setSigningKey(JWT_SECRET) // (3)
+            .setSigningKey(secretKey)
             .parseClaimsJws(token)
             .body
     }
@@ -47,7 +50,7 @@ class SecurityService(
     fun checkValidToken(header: ServerRequest.Headers): Mono<Boolean> {
         return try {
             val token = header.asHttpHeaders().getFirst("Authorization")?.replace("Bearer ", "")
-            val claims = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token)
+            val claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
             Mono.just(true)
         } catch (e: Exception) {
             throw Exception("올바른 토큰이 아닙니다.")
@@ -68,7 +71,7 @@ class SecurityService(
     fun getLoggedInUser(req: ServerRequest): Mono<User> {
         return try {
             val token = req.headers().asHttpHeaders().getFirst("Authorization")?.replace("Bearer ", "")
-            val username = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).body.subject
+            val username = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).body.subject
             userRepository.findByUsername(username).flatMap {
                 it.apply {
                     this.hashedPassword = ""
