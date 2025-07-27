@@ -1,2 +1,2 @@
-rootProject.name = "jigglog"
+rootProject.name = "signight"
 include("src")

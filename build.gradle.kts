@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.7.4"
-	id("io.spring.dependency-management") version "1.0.14.RELEASE"
-	kotlin("jvm") version "1.6.21"
-	kotlin("plugin.spring") version "1.6.21"
+	id("org.springframework.boot") version "3.2.1"
+	id("io.spring.dependency-management") version "1.1.4"
+	kotlin("jvm") version "1.9.22"
+	kotlin("plugin.spring") version "1.9.22"
 }
 
 group = "com.ydh"
@@ -18,8 +18,8 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
-	implementation("dev.miku:r2dbc-mysql:0.8.2.RELEASE")
-	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE")
+	implementation("io.asyncer:r2dbc-mysql:1.0.5")
+	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -29,19 +29,17 @@ dependencies {
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-	implementation("org.redisson:redisson:3.26.0")
+	implementation("org.redisson:redisson:3.26.1")
 
-	runtimeOnly("mysql:mysql-connector-java")
+	runtimeOnly("com.mysql:mysql-connector-j")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.springframework.security:spring-security-test")
-	// 엘라스틱 서치
-	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 
-	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+	implementation("io.jsonwebtoken:jjwt-api:0.12.3")
 	implementation("org.jasypt:jasypt:1.9.3")
-	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 }
 
 tasks.withType<KotlinCompile> {
@@ -49,5 +47,9 @@ tasks.withType<KotlinCompile> {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
 		jvmTarget = "17"
 	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
 }
 
