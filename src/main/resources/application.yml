@@ -1,1 +1,44 @@
+logging:
+  level:
+    org.springframework: INFO
+    org.devkuma: DEBUG
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: ERROR
+server:
+  servlet:
+    context-path: /api
 
+spring:
+  datasource:
+    username: root
+    password: 1127star@
+    jwt-secret: C877E4A955FBDB2257CCB64154D1D59F1546ED967473C128E477DC9467
+    salt: B5F1FB489F6C6CC5A4391B3D186738E8FE23E1F6982D7DFDA77E91337DA61C99CFC64581B84552B74FDECD2
+    owner: ydh2244
+    secretuser: 비공개
+    secretpassword: 1127star
+  r2dbc:
+    url: moija.c6amzvi2eocz.ap-northeast-2.rds.amazonaws.com
+    username: root
+    password: 1127star
+    database: jigglognext
+    port: 3306
+  #  레디스
+  redis:
+    host: jigglog-001.lzfbru.0001.apn2.cache.amazonaws.com
+    port: 6379
+    password: redis1127star
+cloud:
+  aws:
+    credentials:
+      accessKey: ${AWS_ACCESS_KEY:your-access-key}
+      secretKey: ${AWS_SECRET_KEY:your-secret-key}
+    s3:
+      bucket: jiggloghttps
+      dir: https://jiggloghttps.s3.ap-northeast-2.amazonaws.com/images/
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false

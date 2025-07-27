@@ -69,10 +69,17 @@ class SecurityService(
         return try {
             val token = req.headers().asHttpHeaders().getFirst("Authorization")?.replace("Bearer ", "")
             val username = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).body.subject
-            userRepository.findByUsername(username).flatMap {
-                it.apply {
-                    this.hashedPassword = ""
-                }.toMono()
+            userRepository.findByUsername(username).map { user ->
+                // 비밀번호를 제거한 안전한 사용자 객체 반환
+                User(
+                    id = user.id,
+                    username = user.username,
+                    email = user.email,
+                    hashedPassword = "",
+                    imageUrl = user.imageUrl,
+                    githubUrl = user.githubUrl,
+                    summary = user.summary
+                )
             }
         } catch (e: Exception) {
             throw Exception("로그인이 필요한 서비스입니다.")

@@ -1,0 +1,48 @@
+version: '3.7'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: jigglog-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: yourMySQLPassword
+      MYSQL_DATABASE: jigglog
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - jigglog-network
+
+  redis:
+    image: redis:alpine
+    container_name: jigglog-redis
+    command: redis-server --requirepass yourRedisPassword
+    ports:
+      - "6379:6379"
+    networks:
+      - jigglog-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    container_name: jigglog-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - jigglog-network
+
+volumes:
+  mysql_data:
+  elasticsearch_data:
+
+networks:
+  jigglog-network:
+    driver: bridge 

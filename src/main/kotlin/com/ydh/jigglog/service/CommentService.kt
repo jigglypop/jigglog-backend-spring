@@ -5,13 +5,14 @@ import com.ydh.jigglog.domain.entity.Comment
 import com.ydh.jigglog.repository.CommentRepository
 import com.ydh.jigglog.repository.ReCommentRepository
 import com.ydh.jigglog.repository.UserRepository
+import com.ydh.jigglog.exception.CommentNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Controller
+import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
-@Controller
+@Service
 class CommentService (
     @Autowired private val commentRepository: CommentRepository,
     @Autowired private val recommentRepository: ReCommentRepository,
@@ -20,6 +21,7 @@ class CommentService (
     companion object {
         private val logger = LoggerFactory.getLogger(CommentService::class.java)
     }
+    
     // 코멘트 생성
     fun createComment(commentForm: CommentFormDTO, userId: Int, postId: Int): Mono<Comment> {
         return commentRepository.save(
@@ -29,72 +31,81 @@ class CommentService (
                 postId = postId
             )
         )
+        .doOnSuccess { 
+            logger.info("Created comment for post $postId by user $userId")
+        }
     }
+    
     // 코멘트 삭제
     fun deleteComment(commentId: Int): Mono<Boolean> {
-        return commentRepository.deleteById(commentId).thenReturn(true)
-
+        return commentRepository.deleteById(commentId)
+            .thenReturn(true)
+            .doOnSuccess { 
+                logger.info("Deleted comment with id: $commentId")
+            }
+            .doOnError { error ->
+                logger.error("Failed to delete comment with id: $commentId", error)
+            }
     }
+    
     // 단일 코멘트 가져오기
     fun getComment(commentId: Int): Mono<Comment> {
-        return commentRepository.existsById(commentId)
-            .flatMap {  isExist ->
-                if (isExist) {
-                    commentRepository.findById(commentId)
-                } else {
-                    throw error("댓글이 없습니다")
-                }
-            }
+        return commentRepository.findById(commentId)
+            .switchIfEmpty(Mono.error(CommentNotFoundException("댓글을 찾을 수 없습니다. ID: $commentId")))
     }
 
     // 포스트로 모두 가져오기
     fun getCommentByPostId(postId: Int): Mono<List<CommentDTO>> {
-        return Mono.just(postId).flatMap { postId ->
-            commentRepository.findAllByPostIdAndUser(postId).collectList().toMono()
-        }.flatMap {
-            val comment_idx = mutableMapOf<Int, CommentDTO>()
-            for (commentsAll in it) {
-                val recomment = ReCommentDTO(
-                    id = commentsAll.recomment_id,
-                    content = commentsAll.recomment_content,
-                    createdAt = commentsAll.recomment_createdat,
-                    user = UserDTO(
-                        id = commentsAll.recomment_userid,
-                        username = commentsAll.recomment_username,
-                        email = commentsAll.recomment_email,
-                        imageUrl = commentsAll.recomment_imageurl,
-                        githubUrl = commentsAll.recomment_githuburl,
-                        summary = commentsAll.recomment_summary,
-                    )
-                )
-                if (commentsAll.comment_id in comment_idx) {
-                    comment_idx[commentsAll.comment_id]?.recomments?.add(recomment)
-                } else {
-                    val comment = CommentDTO(
-                        id = commentsAll.comment_id,
-                        content = commentsAll.comment_content,
-                        createdAt = commentsAll.comment_createdat,
-                        recomments = mutableListOf<ReCommentDTO>(),
-                        user = UserDTO(
-                            id = commentsAll.comment_userid,
-                            username = commentsAll.comment_username,
-                            hashedPassword = "",
-                            email = commentsAll.comment_email,
-                            imageUrl = commentsAll.comment_imageurl,
-                            githubUrl = commentsAll.comment_githuburl,
-                            summary = commentsAll.comment_summary,
+        return commentRepository.findAllByPostIdAndUser(postId)
+            .collectList()
+            .map { commentsList ->
+                val commentMap = mutableMapOf<Int, CommentDTO>()
+                
+                commentsList.forEach { commentsAll ->
+                    val recomment = if (commentsAll.recomment_id != 0) {
+                        ReCommentDTO(
+                            id = commentsAll.recomment_id,
+                            content = commentsAll.recomment_content,
+                            createdAt = commentsAll.recomment_createdat,
+                            user = UserDTO(
+                                id = commentsAll.recomment_userid,
+                                username = commentsAll.recomment_username,
+                                email = commentsAll.recomment_email,
+                                imageUrl = commentsAll.recomment_imageurl,
+                                githubUrl = commentsAll.recomment_githuburl,
+                                summary = commentsAll.recomment_summary
+                            )
                         )
-                    )
-                    if (recomment.id != 0) comment.recomments.add(recomment)
-                    comment_idx[commentsAll.comment_id] = comment
+                    } else null
+                    
+                    val existingComment = commentMap[commentsAll.comment_id]
+                    if (existingComment != null) {
+                        recomment?.let { existingComment.recomments.add(it) }
+                    } else {
+                        val comment = CommentDTO(
+                            id = commentsAll.comment_id,
+                            content = commentsAll.comment_content,
+                            createdAt = commentsAll.comment_createdat,
+                            recomments = mutableListOf(),
+                            user = UserDTO(
+                                id = commentsAll.comment_userid,
+                                username = commentsAll.comment_username,
+                                hashedPassword = "",
+                                email = commentsAll.comment_email,
+                                imageUrl = commentsAll.comment_imageurl,
+                                githubUrl = commentsAll.comment_githuburl,
+                                summary = commentsAll.comment_summary
+                            )
+                        )
+                        recomment?.let { comment.recomments.add(it) }
+                        commentMap[commentsAll.comment_id] = comment
+                    }
                 }
+                
+                commentMap.values.toList()
             }
-            val results = mutableListOf<CommentDTO>()
-            for (i in comment_idx.keys) {
-                results.add(comment_idx[i]!!)
+            .doOnSuccess { comments ->
+                logger.debug("Found ${comments.size} comments for post $postId")
             }
-            results.toMono()
-        }
     }
-
 }

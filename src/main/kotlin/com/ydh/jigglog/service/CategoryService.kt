@@ -10,21 +10,21 @@ import com.ydh.jigglog.repository.CategoryRepository
 import com.ydh.jigglog.repository.PostRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Controller
+import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
-@Controller
+@Service
 class CategoryService (
     @Autowired private val categoryRepository: CategoryRepository,
     @Autowired private val categoryCacheRepository: CategoryCacheRepository,
     @Autowired private val postRepository: PostRepository
-
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(CategoryService::class.java)
     }
+    
     // 카테고리 모두 가져오기
     fun getCategoryAll(): Flux<CategoryDTO> {
         return categoryRepository.findAllAndCount()
@@ -32,12 +32,9 @@ class CategoryService (
 
     // 카테고리 아이디로 포스트 가져오기
     fun getAllPostByCategoryId(categoryId: Int, offset: Int, limit: Int? = 8): Mono<List<PostInCategoryDTO>> {
-        return  Mono.just(categoryId).flatMap { categoryId ->
-            postRepository.findAllByCategoryId(categoryId, offset, limit).collectList().toMono()
-        }.flatMap{
-            var posts = mutableListOf<PostInCategoryDTO>()
-            for (post in it) {
-                var result = PostInCategoryDTO(
+        return postRepository.findAllByCategoryId(categoryId, offset, limit)
+            .map { post ->
+                PostInCategoryDTO(
                     id = post.id,
                     summary = post.summary,
                     title = post.title,
@@ -50,25 +47,27 @@ class CategoryService (
                     user = UserInPostCategoryDTO(
                         id = post.userid,
                         username = post.username,
-                        imageUrl = post.imageurl,
+                        imageUrl = post.imageurl
                     )
                 )
-                posts.add(result)
             }
-            posts.toMono()
-        }
+            .collectList()
+            .doOnSuccess { posts ->
+                logger.debug("Found ${posts.size} posts for category $categoryId")
+            }
     }
-
 
     // 카테고리 확인하고 없으면 생성
     fun createCategoryIfNot(title: String): Mono<Category> {
-        return categoryRepository.existsByTitle(title).flatMap {
-            if (it) {
-                categoryRepository.findByTitle(title)
-            } else {
-                categoryRepository.save(Category(title = title))
+        return categoryRepository.existsByTitle(title)
+            .flatMap { exists ->
+                if (exists) {
+                    categoryRepository.findByTitle(title)
+                } else {
+                    categoryRepository.save(Category(title = title))
+                        .doOnSuccess { logger.info("Created new category: $title") }
+                }
             }
-        }
     }
 
     // 카테고리 캐시 확인하고 없으면 생성
@@ -78,23 +77,25 @@ class CategoryService (
                 categoryRepository
                     .findAllAndCount()
                     .collectList()
-                    .flatMap {
-                        categoryCacheRepository.setCategoriesAllAndCaching(it)
+                    .flatMap { categories ->
+                        categoryCacheRepository.setCategoriesAllAndCaching(categories)
                     }
-        ).flatMap {
-            it.categories.toMono()
-        }
+            )
+            .map { categoryListDTO ->
+                categoryListDTO.categories
+            }
     }
-
 
     // 카테고리 캐시 리셋
     fun resetCategoryCash(): Mono<CategoryListDTO> {
-            return categoryRepository
-                .findAllAndCount()
-                .collectList()
-                .flatMap {
-                    categoryCacheRepository.setCategoriesAllAndCaching(it)
-                }
-
+        return categoryRepository
+            .findAllAndCount()
+            .collectList()
+            .flatMap { categories ->
+                categoryCacheRepository.setCategoriesAllAndCaching(categories)
+            }
+            .doOnSuccess { 
+                logger.info("Category cache has been reset")
+            }
     }
 }

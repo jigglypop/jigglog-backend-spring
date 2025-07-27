@@ -2,6 +2,9 @@ package com.ydh.jigglog.service
 
 import com.ydh.jigglog.domain.dto.UserFormDTO
 import com.ydh.jigglog.repository.UserRepository
+import com.ydh.jigglog.exception.ValidationException
+import com.ydh.jigglog.exception.DuplicateUsernameException
+import com.ydh.jigglog.exception.UserNotFoundException
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,45 +22,44 @@ class ValidationService (
     }
 
     fun <T : Any>checkValidForm(mono: T, form: Map<String?, String?>): Mono<T> {
-        val valid = form.filter { it.value == null || it.value == "" }
+        val invalidFields = form.filter { it.value.isNullOrBlank() }
+        
         // 밸리데이션을 만족할 경우
-        return if (valid.keys.isEmpty()) {
+        return if (invalidFields.isEmpty()) {
             Mono.just(mono)
         // 아닐 경우
         } else {
-            throw Exception("다음의 값을 입력해 주세요: ${valid.keys.toString()}")
+            Mono.error(ValidationException("다음의 값을 입력해 주세요: ${invalidFields.keys.joinToString(", ")}"))
         }
-
     }
 
-   fun checkValidUsername(userForm: UserFormDTO): Mono<UserFormDTO> {
-        return userRepository.existsByUsername(userForm.username!!).flatMap {
-            if (it) {
-                throw error("이미 같은 이름의 유저가 있습니다")
-            } else {
-               userForm.toMono()
+    fun checkValidUsername(userForm: UserFormDTO): Mono<UserFormDTO> {
+        return userRepository.existsByUsername(userForm.username!!)
+            .flatMap { exists ->
+                if (exists) {
+                    Mono.error(DuplicateUsernameException("이미 같은 이름의 유저가 있습니다: ${userForm.username}"))
+                } else {
+                    Mono.just(userForm)
+                }
             }
-        }
     }
 
     fun checkNotValidUsername(userForm: UserFormDTO): Mono<UserFormDTO> {
-        return userRepository.existsByUsername(userForm.username!!).flatMap {
-            if (it) {
-                userForm.toMono()
-            } else {
-                throw error("해당 이름의 유저가 없습니다")
+        return userRepository.existsByUsername(userForm.username!!)
+            .flatMap { exists ->
+                if (exists) {
+                    Mono.just(userForm)
+                } else {
+                    Mono.error(UserNotFoundException("해당 이름의 유저가 없습니다: ${userForm.username}"))
+                }
             }
-        }
     }
 
     fun checkUsernameBoolean(userForm: UserFormDTO): Mono<Boolean> {
-        return userRepository.existsByUsername(userForm.username!!).flatMap {
-            if (it) {
-                true.toMono()
-            } else {
-                false.toMono()
+        return userRepository.existsByUsername(userForm.username!!)
+            .doOnNext { exists ->
+                logger.debug("Username '${userForm.username}' exists: $exists")
             }
-        }
     }
 }
 
